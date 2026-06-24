@@ -30,13 +30,13 @@ class _LoginViewState extends State<LoginView> {
                 // Logo
                 Image.asset(
                   'assets/auth/lingoleapGreen.png',
-                  height: 80,
+                  height: 150,
                   errorBuilder: (context, error, stackTrace) => const SizedBox(
-                    height: 80,
+                    height: 150,
                     child: Center(
                       child: Icon(
                         Icons.language,
-                        size: 60,
+                        size: 90,
                         color: Colors.green,
                       ),
                     ),
