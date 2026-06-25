@@ -4,16 +4,8 @@ import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
 import '../../../routes/app_pages.dart';
 
-class LoginView extends StatefulWidget {
+class LoginView extends GetView<LoginController> {
   const LoginView({super.key});
-
-  @override
-  State<LoginView> createState() => _LoginViewState();
-}
-
-class _LoginViewState extends State<LoginView> {
-  bool _obscurePassword = true;
-  final LoginController _controller = Get.find<LoginController>();
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +84,7 @@ class _LoginViewState extends State<LoginView> {
                       _buildLabel('Email Pahlawan'),
                       const SizedBox(height: 8),
                       _buildTextField(
-                        controller: _controller.emailController,
+                        controller: controller.emailController,
                         hint: 'Masukan Emailmu, Pahlawan.',
                         keyboardType: TextInputType.emailAddress,
                       ),
@@ -101,32 +93,28 @@ class _LoginViewState extends State<LoginView> {
                       // Password field
                       _buildLabel('Kunci Rahasia'),
                       const SizedBox(height: 8),
-                      _buildTextField(
-                        controller: _controller.passwordController,
-                        hint: 'Masukan Kata kunci pahlawanmu!',
-                        obscure: _obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.remove_red_eye_outlined
-                                : Icons.visibility_off_outlined,
-                            color: Colors.grey,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
+                      Obx(() => _buildTextField(
+                            controller: controller.passwordController,
+                            hint: 'Masukan Kata kunci pahlawanmu!',
+                            obscure: controller.obscurePassword.value,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                controller.obscurePassword.value
+                                    ? Icons.remove_red_eye_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              onPressed: controller.toggleObscure,
+                            ),
+                          )),
                       const SizedBox(height: 8),
 
                       // Forgot password
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () => Get.toNamed(Routes.FORGOT_PASSWORD),
                           style: TextButton.styleFrom(
                             padding: EdgeInsets.zero,
                             minimumSize: Size.zero,
@@ -151,9 +139,9 @@ class _LoginViewState extends State<LoginView> {
                           width: double.infinity,
                           height: 56,
                           child: ElevatedButton(
-                            onPressed: _controller.isLoading.value
+                            onPressed: controller.isLoading.value
                                 ? null
-                                : () => _controller.login(),
+                                : () => controller.login(),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1A3A6B),
                               foregroundColor: Colors.white,
@@ -162,7 +150,7 @@ class _LoginViewState extends State<LoginView> {
                               ),
                               elevation: 0,
                             ),
-                            child: _controller.isLoading.value
+                            child: controller.isLoading.value
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
@@ -270,3 +258,4 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
+
