@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import '../routes/app_pages.dart';
@@ -18,10 +19,16 @@ class AuthService extends GetxService {
   }
 
   void _initialScreen(User? user) {
-    if (user == null) {
-      Get.offAllNamed(Routes.LOGIN);
-    } else {
-      Get.offAllNamed(Routes.HOME);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (user == null) {
+        if (Get.currentRoute != Routes.LOGIN) {
+          Get.offAllNamed(Routes.LOGIN);
+        }
+      } else {
+        if (Get.currentRoute != Routes.HOME) {
+          Get.offAllNamed(Routes.HOME);
+        }
+      }
+    });
   }
 }

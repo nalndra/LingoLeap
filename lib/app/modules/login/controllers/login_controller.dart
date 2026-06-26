@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginController extends GetxController {
   final emailController = TextEditingController();
+  final nameController = TextEditingController();
   final passwordController = TextEditingController();
   
   final isLoading = false.obs;
@@ -12,6 +13,7 @@ class LoginController extends GetxController {
   @override
   void onClose() {
     emailController.dispose();
+    nameController.dispose();
     passwordController.dispose();
     super.onClose();
   }
@@ -25,7 +27,7 @@ class LoginController extends GetxController {
         'Error',
         'Email dan Kunci Rahasia tidak boleh kosong!',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.8),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return;
@@ -42,7 +44,7 @@ class LoginController extends GetxController {
         'Sukses',
         'Selamat datang kembali, ${userCredential.user?.displayName ?? "Pahlawan"}!',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.8),
+        backgroundColor: Colors.green,
         colorText: Colors.white,
       );
       
@@ -60,7 +62,7 @@ class LoginController extends GetxController {
         'Gagal Masuk',
         message,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.8),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } catch (e) {
@@ -68,7 +70,7 @@ class LoginController extends GetxController {
         'Error',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.8),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
