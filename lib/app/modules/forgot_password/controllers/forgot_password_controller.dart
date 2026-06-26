@@ -1,39 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../routes/app_pages.dart';
-class LoginController extends GetxController {
-  final emailController = TextEditingController();
-  final nameController = TextEditingController();
-  final passwordController = TextEditingController();
-  
-  final isLoading = false.obs;
-  final obscurePassword = true.obs;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  void toggleObscure() {
-    obscurePassword.value = !obscurePassword.value;
-  }
+import '../../../routes/app_pages.dart';
+
+class ForgotPasswordController extends GetxController {
+  final emailController = TextEditingController();
+  final isLoading = false.obs;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void onClose() {
     Future.delayed(const Duration(milliseconds: 500), () {
       emailController.dispose();
-      passwordController.dispose();
     });
     super.onClose();
   }
 
-  Future<void> login() async {
+  Future<void> sendResetEmail() async {
     final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
+    if (email.isEmpty) {
       Get.snackbar(
         'Error',
-        'Email dan Kunci Rahasia tidak boleh kosong!',
+        'Email Pahlawan tidak boleh kosong.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red.withOpacity(0.85),
         colorText: Colors.white,
       );
       return;
@@ -41,35 +32,27 @@ class LoginController extends GetxController {
 
     try {
       isLoading.value = true;
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
+      await _auth.sendPasswordResetEmail(email: email);
       Get.snackbar(
-        'Sukses',
-        'Selamat datang kembali, ${userCredential.user?.displayName ?? "Pahlawan"}!',
+        'Berhasil',
+        'Link reset password sudah dikirim ke email kamu, Pahlawan!',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.green.withOpacity(0.9),
         colorText: Colors.white,
       );
-      
-      // Navigate to HOME
-      Get.offAllNamed(Routes.HOME);
+      Get.back();
     } on FirebaseAuthException catch (e) {
-      String message = 'Terjadi kesalahan saat masuk.';
+      String message = 'Terjadi kesalahan saat mengirim email reset.';
       if (e.code == 'user-not-found') {
-        message = 'Email pahlawan tidak ditemukan.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Kunci rahasia salah.';
+        message = 'Email Pahlawan tidak ditemukan.';
       } else if (e.code == 'invalid-email') {
         message = 'Format email tidak valid.';
       }
       Get.snackbar(
-        'Gagal Masuk',
+        'Gagal',
         message,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red.withOpacity(0.85),
         colorText: Colors.white,
       );
     } catch (e) {
@@ -77,7 +60,7 @@ class LoginController extends GetxController {
         'Error',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red.withOpacity(0.85),
         colorText: Colors.white,
       );
     } finally {

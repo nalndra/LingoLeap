@@ -15,20 +15,6 @@ class AuthService extends GetxService {
     _firebaseUser = Rx<User?>(_auth.currentUser);
     _firebaseUser.bindStream(_auth.authStateChanges());
     // Monitor user changes and route accordingly
-    ever(_firebaseUser, _initialScreen);
-  }
-
-  void _initialScreen(User? user) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (user == null) {
-        if (Get.currentRoute != Routes.LOGIN) {
-          Get.offAllNamed(Routes.LOGIN);
-        }
-      } else {
-        if (Get.currentRoute != Routes.HOME) {
-          Get.offAllNamed(Routes.HOME);
-        }
-      }
-    });
+    // ever(_firebaseUser, _initialScreen); // Removed because routing is handled by WelcomeScreen
   }
 }

@@ -6,18 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../controllers/login_controller.dart';
 import '../../../routes/app_pages.dart';
 
-class LoginView extends StatefulWidget {
+class LoginView extends GetView<LoginController> {
   const LoginView({super.key});
-
-  @override
-  State<LoginView> createState() => _LoginViewState();
-}
-
-class _LoginViewState extends State<LoginView> {
-  bool _obscurePassword = true;
-  
-  // Use a dynamic getter to always fetch the active GetX controller instance
-  LoginController get _controller => Get.find<LoginController>();
 
   @override
   Widget build(BuildContext context) {
@@ -92,45 +82,45 @@ class _LoginViewState extends State<LoginView> {
                         ),
                         const SizedBox(height: 20),
 
-                        // Email Field
-                        _buildLabel('Email Pahlawan'),
-                        const SizedBox(height: 8),
-                        _buildTextField(
-                          controller: _controller.emailController,
-                          hint: 'Masukan Emailmu, Pahlawan.',
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                        const SizedBox(height: 16),
+                      // Email field
+                      _buildLabel('Email Pahlawan'),
+                      const SizedBox(height: 8),
+                      _buildTextField(
+                        controller: controller.emailController,
+                        hint: 'Masukan Emailmu, Pahlawan.',
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 16),
 
-                        // Display Name Field
-                        _buildLabel('Nama Pahlawan'),
-                        const SizedBox(height: 8),
-                        _buildTextField(
-                          controller: _controller.nameController,
-                          hint: 'Siapa namamu, Pahlawan?',
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Password Field
-                        _buildLabel('Kunci Rahasia'),
-                        const SizedBox(height: 8),
-                        _buildTextField(
-                          controller: _controller.passwordController,
-                          hint: 'Masukan Kata kunci pahlawanmu!',
-                          obscure: _obscurePassword,
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                              color: const Color(0xFF888888),
-                              size: 22,
+                      // Password field
+                      _buildLabel('Kunci Rahasia'),
+                      const SizedBox(height: 8),
+                      Obx(() => _buildTextField(
+                            controller: controller.passwordController,
+                            hint: 'Masukan Kata kunci pahlawanmu!',
+                            obscure: controller.obscurePassword.value,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                controller.obscurePassword.value
+                                    ? Icons.remove_red_eye_outlined
+                                    : Icons.visibility_off_outlined,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              onPressed: controller.toggleObscure,
                             ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
+                          )),
+                      const SizedBox(height: 8),
+
+                      // Forgot password
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => Get.toNamed(Routes.FORGOT_PASSWORD),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                         ),
                         
@@ -152,15 +142,24 @@ class _LoginViewState extends State<LoginView> {
 
                         const SizedBox(height: 8),
 
-                        // Lanjutkan Petualangan (Blue 3D Tactile Button)
-                        Obx(
-                          () => _buildTactileButton(
-                            onPressed: _controller.isLoading.value
+                      // Submit button
+                      Obx(
+                        () => SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: controller.isLoading.value
                                 ? null
-                                : () => _controller.login(),
-                            color: const Color(0xFF005EA6), // Blue matching screenshot
-                            shadowColor: const Color(0xFF00447A),
-                            child: _controller.isLoading.value
+                                : () => controller.login(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1A3A6B),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(32),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: controller.isLoading.value
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
@@ -427,3 +426,4 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
+

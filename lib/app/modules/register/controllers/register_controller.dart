@@ -13,10 +13,12 @@ class RegisterController extends GetxController {
 
   @override
   void onClose() {
-    emailController.dispose();
-    nameController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      emailController.dispose();
+      nameController.dispose();
+      passwordController.dispose();
+      confirmPasswordController.dispose();
+    });
     super.onClose();
   }
 
@@ -93,7 +95,9 @@ class RegisterController extends GetxController {
         colorText: Colors.white,
       );
     } finally {
-      isLoading.value = false;
+      if (!isClosed) {
+        isLoading.value = false;
+      }
     }
   }
 }
