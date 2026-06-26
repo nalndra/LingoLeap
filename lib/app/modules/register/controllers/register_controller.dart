@@ -33,7 +33,7 @@ class RegisterController extends GetxController {
         'Error',
         'Semua kolom pahlawan wajib diisi!',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.8),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return;
@@ -44,7 +44,7 @@ class RegisterController extends GetxController {
         'Error',
         'Kunci rahasia dan konfirmasi tidak cocok!',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.8),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return;
@@ -64,7 +64,7 @@ class RegisterController extends GetxController {
         'Sukses',
         'Akun pahlawan $name berhasil dibuat! Silakan masuk.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.8),
+        backgroundColor: Colors.green,
         colorText: Colors.white,
       );
 
@@ -83,7 +83,7 @@ class RegisterController extends GetxController {
         'Gagal Mendaftar',
         message,
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.8),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } catch (e) {
@@ -91,7 +91,7 @@ class RegisterController extends GetxController {
         'Error',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.withOpacity(0.8),
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     } finally {
