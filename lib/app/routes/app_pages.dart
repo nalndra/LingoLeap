@@ -1,15 +1,23 @@
 import 'package:get/get.dart';
 
-import '../modules/login/bindings/login_binding.dart';
-import '../modules/login/views/login_view.dart';
-import '../modules/register/bindings/register_binding.dart';
-import '../modules/register/views/register_view.dart';
-import '../modules/home/bindings/home_binding.dart';
-import '../modules/home/views/home_view.dart';
 import '../modules/forgot_password/bindings/forgot_password_binding.dart';
 import '../modules/forgot_password/views/forgot_password_view.dart';
+import '../modules/home/bindings/home_binding.dart';
+import '../modules/home/views/home_view.dart';
+import '../modules/latihan/bindings/latihan_binding.dart';
+import '../modules/latihan/views/latihan_view.dart';
+import '../modules/login/bindings/login_binding.dart';
+import '../modules/login/views/login_view.dart';
 import '../modules/new_password/bindings/new_password_binding.dart';
 import '../modules/new_password/views/new_password_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
+import '../modules/profile/views/profile_view.dart';
+import '../modules/progress/bindings/progress_binding.dart';
+import '../modules/progress/views/progress_view.dart';
+import '../modules/register/bindings/register_binding.dart';
+import '../modules/register/views/register_view.dart';
+import '../modules/tutorial/bindings/tutorial_binding.dart';
+import '../modules/tutorial/views/tutorial_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
 import '../modules/welcome/views/welcome_view.dart';
 
@@ -26,7 +34,6 @@ class AppPages {
       page: () => const WelcomeView(),
       binding: WelcomeBinding(),
     ),
-
     GetPage(
       name: _Paths.LOGIN,
       page: () => const LoginView(),
@@ -36,11 +43,14 @@ class AppPages {
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
       binding: RegisterBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: _Paths.HOME,
       page: () => const HomeView(),
       binding: HomeBinding(),
+      transition: Transition.fade,
+      transitionDuration: const Duration(milliseconds: 500),
     ),
     GetPage(
       name: _Paths.FORGOT_PASSWORD,
@@ -51,6 +61,26 @@ class AppPages {
       name: _Paths.NEW_PASSWORD,
       page: () => const NewPasswordView(),
       binding: NewPasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.TUTORIAL,
+      page: () => const TutorialView(),
+      binding: TutorialBinding(),
+    ),
+    GetPage(
+      name: _Paths.LATIHAN,
+      page: () => const LatihanView(),
+      binding: LatihanBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROGRESS,
+      page: () => const ProgressView(),
+      binding: ProgressBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROFILE,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
     ),
   ];
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../routes/app_pages.dart';
 
 class QuizQuestion {
   final String questionText;
@@ -66,7 +67,6 @@ class LeaderboardUser {
     this.isCurrentUser = false,
   }) : xp = initialXp.obs;
 }
-import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -86,22 +86,6 @@ class HomeController extends GetxController {
     {'icon': 'assets/icons/puzzle.png', 'unlocked': false, 'type': 'puzzle'},
   ];
 
-  void changeTab(int index) {
-    if (index == 0) {
-      selectedIndex.value = index;
-    } else {
-      Get.snackbar(
-        'Coming soon!', 
-        'Fitur ini akan segera hadir, Pahlawan!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green.withOpacity(0.9),
-        colorText: Colors.white,
-        borderRadius: 12,
-        margin: const EdgeInsets.all(16),
-      );
-    }
-  }
-
   // Active Tab Index
   final tabIndex = 0.obs;
 
@@ -111,6 +95,31 @@ class HomeController extends GetxController {
   final xp = 100.obs;   // 100 XP
   final gems = 150.obs;  // 150 Gems
   final level = 10.obs;  // Lvl 10
+
+  // Rank helpers — call inside Obx() so they stay reactive
+  String get rankName {
+    if (level.value >= 20) return 'Emas';
+    if (level.value >= 10) return 'Perak';
+    return 'Perunggu';
+  }
+
+  String get rankCardAsset {
+    if (level.value >= 20) return 'assets/ranks/card_rank_gold.png';
+    if (level.value >= 10) return 'assets/ranks/card_rank_silver.png';
+    return 'assets/ranks/card_rank_bronze.png';
+  }
+
+  String get rankBadgeAsset {
+    if (level.value >= 20) return 'assets/ranks/badge_rank_gold.png';
+    if (level.value >= 10) return 'assets/ranks/badge_rank_silver.png';
+    return 'assets/ranks/badge_rank_bronze.png';
+  }
+
+  Color get rankColor {
+    if (level.value >= 20) return const Color(0xFFFFD700);
+    if (level.value >= 10) return const Color(0xFF9E9E9E);
+    return const Color(0xFFCD7F32);
+  }
 
   // Inventory/Items count
   final streakFreezes = 1.obs;
@@ -135,12 +144,21 @@ class HomeController extends GetxController {
   final isAnswerCorrect = false.obs;
   final quizErrorsCount = 0.obs;
 
+  late final PageController pageController;
+
   @override
   void onInit() {
     super.onInit();
+    pageController = PageController(initialPage: tabIndex.value);
     _initializeExercises();
     _initializeGames();
     _initializeLeaderboard();
+  }
+
+  @override
+  void onClose() {
+    pageController.dispose();
+    super.onClose();
   }
 
   void logout() async {
@@ -148,8 +166,25 @@ class HomeController extends GetxController {
     Get.offAllNamed(Routes.LOGIN);
   }
 
+  // Called by bottom nav taps — all tabs allowed, animate the PageView
   void changeTab(int index) {
+    _goToPage(index);
+  }
+
+  // Called by PageView's onPageChanged — just syncs the indicator
+  void onPageSwiped(int index) {
     tabIndex.value = index;
+  }
+
+  void _goToPage(int index) {
+    tabIndex.value = index;
+    if (pageController.hasClients) {
+      pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   // Predefined Exercises (Screen 2)
