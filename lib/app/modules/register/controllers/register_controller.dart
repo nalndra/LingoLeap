@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../routes/app_pages.dart';
 
 class RegisterController extends GetxController {
   final emailController = TextEditingController();
@@ -60,16 +61,15 @@ class RegisterController extends GetxController {
       // Update user profile with Display Name
       await userCredential.user?.updateDisplayName(name);
 
-      Get.snackbar(
-        'Sukses',
-        'Akun pahlawan $name berhasil dibuat! Silakan masuk.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      // Send email verification
+      try {
+        await userCredential.user?.sendEmailVerification();
+        debugPrint('Verification email sent to: ${userCredential.user?.email}');
+      } catch (e) {
+        debugPrint('sendEmailVerification error: $e');
+      }
 
-      // Go back to login screen
-      Get.back();
+      Get.offAllNamed(Routes.VERIFY_EMAIL);
     } on FirebaseAuthException catch (e) {
       String message = 'Terjadi kesalahan saat mendaftar.';
       if (e.code == 'weak-password') {

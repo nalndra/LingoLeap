@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../home/controllers/home_controller.dart';
 import '../controllers/progress_controller.dart';
-import '../../../routes/app_pages.dart';
 
 class ProgressView extends GetView<ProgressController> {
   const ProgressView({super.key});
@@ -13,73 +12,25 @@ class ProgressView extends GetView<ProgressController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF9EF),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 20),
-                _buildLevelCard(),
-                const SizedBox(height: 16),
-                _buildStatisticCard(),
-                const SizedBox(height: 16),
-                _buildQuestJourneyCard(),
-                const SizedBox(height: 24),
-              ],
-            ),
+    return SafeArea(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 20),
+              _buildLevelCard(),
+              const SizedBox(height: 16),
+              _buildStatisticCard(),
+              const SizedBox(height: 16),
+              _buildQuestJourneyCard(),
+              const SizedBox(height: 24),
+            ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return BottomNavigationBar(
-      currentIndex: 2,
-      onTap: (index) {
-        switch (index) {
-          case 0:
-            Get.offNamed(Routes.HOME);
-            break;
-          case 1:
-            Get.offNamed(Routes.QUEST);
-            break;
-          case 3:
-            Get.offNamed(Routes.PROFILE);
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color(0xFF3DAA4C),
-      unselectedItemColor: Colors.grey,
-      showUnselectedLabels: true,
-      items: [
-        _navItem(Icons.home_rounded, 'Home', false),
-        _navItem(Icons.explore_outlined, 'Quest', false),
-        _navItem(Icons.bar_chart_rounded, 'Progress', true),
-        _navItem(Icons.person_outline_rounded, 'Hero', false),
-      ],
-    );
-  }
-
-  BottomNavigationBarItem _navItem(IconData icon, String label, bool active) {
-    return BottomNavigationBarItem(
-      icon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? const Color(0xFFA1FA49) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(icon, size: 26),
-      ),
-      label: label,
     );
   }
 
@@ -115,25 +66,31 @@ class ProgressView extends GetView<ProgressController> {
                 children: [
                   const Icon(Icons.favorite, color: Color(0xFFE53935), size: 15),
                   const SizedBox(width: 3),
-                  Obx(() => Text(
-                        '${_home.hearts.value}/5',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFE53935),
-                        ),
-                      )),
+                  Flexible(
+                    child: Obx(() => Text(
+                          '${_home.hearts.value}/5',
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFE53935),
+                          ),
+                        )),
+                  ),
                   const SizedBox(width: 10),
                   const Icon(Icons.bolt, color: Color(0xFFFFB300), size: 15),
                   const SizedBox(width: 3),
-                  Obx(() => Text(
-                        '${_home.xp.value} XP',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFFFB300),
-                        ),
-                      )),
+                  Flexible(
+                    child: Obx(() => Text(
+                          '${_home.xp.value} XP',
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFFFB300),
+                          ),
+                        )),
+                  ),
                 ],
               ),
             ],
@@ -376,8 +333,7 @@ class ProgressView extends GetView<ProgressController> {
                             ),
                             child: Icon(
                               q.done ? Icons.check_rounded : q.icon,
-                              color:
-                                  q.done ? Colors.white : Colors.grey[500],
+                              color: q.done ? Colors.white : Colors.grey[500],
                               size: 26,
                             ),
                           ),

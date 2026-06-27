@@ -15,6 +15,7 @@ abstract class Routes {
   static const PROFILE = _Paths.PROFILE;
   static const QUEST = _Paths.QUEST;
   static const CHAT_LIPPO = _Paths.CHAT_LIPPO;
+  static const VERIFY_EMAIL = _Paths.VERIFY_EMAIL;
 }
 
 abstract class _Paths {
@@ -31,4 +32,5 @@ abstract class _Paths {
   static const PROFILE = '/profile';
   static const QUEST = '/quest';
   static const CHAT_LIPPO = '/chat-lippo';
+  static const VERIFY_EMAIL = '/verify-email';
 }

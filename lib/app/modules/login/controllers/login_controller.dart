@@ -46,15 +46,22 @@ class LoginController extends GetxController {
         password: password,
       );
       
+      final user = userCredential.user;
+
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        Get.offAllNamed(Routes.VERIFY_EMAIL);
+        return;
+      }
+
       Get.snackbar(
         'Sukses',
-        'Selamat datang kembali, ${userCredential.user?.displayName ?? "Pahlawan"}!',
+        'Selamat datang kembali, ${user?.displayName ?? "Pahlawan"}!',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      
-      // Navigate to HOME
+
       Get.offAllNamed(Routes.HOME);
     } on FirebaseAuthException catch (e) {
       String message = 'Terjadi kesalahan saat masuk.';

@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../home/controllers/home_controller.dart';
 import '../controllers/profile_controller.dart';
-import '../../../routes/app_pages.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -13,75 +12,27 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF9EF),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              children: [
-                _buildHeroHeader(),
-                const SizedBox(height: 20),
-                _buildRankingCard(),
-                const SizedBox(height: 24),
-                _buildMascotArea(),
-                const SizedBox(height: 24),
-                _buildStatsCard(),
-                const SizedBox(height: 16),
-                _buildBadgeCard(),
-                const SizedBox(height: 24),
-              ],
-            ),
+    return SafeArea(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            children: [
+              _buildHeroHeader(),
+              const SizedBox(height: 20),
+              _buildRankingCard(),
+              const SizedBox(height: 24),
+              _buildMascotArea(),
+              const SizedBox(height: 24),
+              _buildStatsCard(),
+              const SizedBox(height: 16),
+              _buildBadgeCard(),
+              const SizedBox(height: 24),
+            ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return BottomNavigationBar(
-      currentIndex: 3,
-      onTap: (index) {
-        switch (index) {
-          case 0:
-            Get.offNamed(Routes.HOME);
-            break;
-          case 1:
-            Get.offNamed(Routes.QUEST);
-            break;
-          case 2:
-            Get.offNamed(Routes.PROGRESS);
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color(0xFF3DAA4C),
-      unselectedItemColor: Colors.grey,
-      showUnselectedLabels: true,
-      items: [
-        _navItem(Icons.home_rounded, 'Home', false),
-        _navItem(Icons.explore_outlined, 'Quest', false),
-        _navItem(Icons.bar_chart_rounded, 'Progress', false),
-        _navItem(Icons.person_outline_rounded, 'Hero', true),
-      ],
-    );
-  }
-
-  BottomNavigationBarItem _navItem(IconData icon, String label, bool active) {
-    return BottomNavigationBarItem(
-      icon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? const Color(0xFFA1FA49) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(icon, size: 26),
-      ),
-      label: label,
     );
   }
 
@@ -118,25 +69,31 @@ class ProfileView extends GetView<ProfileController> {
                   const Icon(Icons.favorite,
                       color: Color(0xFFE53935), size: 15),
                   const SizedBox(width: 3),
-                  Obx(() => Text(
-                        '${_home.hearts.value}/5',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFE53935),
-                        ),
-                      )),
+                  Flexible(
+                    child: Obx(() => Text(
+                          '${_home.hearts.value}/5',
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFE53935),
+                          ),
+                        )),
+                  ),
                   const SizedBox(width: 10),
                   const Icon(Icons.bolt, color: Color(0xFFFFB300), size: 15),
                   const SizedBox(width: 3),
-                  Obx(() => Text(
-                        '${_home.xp.value} XP',
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFFFFB300),
-                        ),
-                      )),
+                  Flexible(
+                    child: Obx(() => Text(
+                          '${_home.xp.value} XP',
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFFFFB300),
+                          ),
+                        )),
+                  ),
                 ],
               ),
             ],

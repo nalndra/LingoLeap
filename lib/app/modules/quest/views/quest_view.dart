@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../home/controllers/home_controller.dart';
 import '../controllers/quest_controller.dart';
-import '../../../routes/app_pages.dart';
 
 class QuestView extends GetView<QuestController> {
   const QuestView({super.key});
@@ -13,31 +12,27 @@ class QuestView extends GetView<QuestController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFAF9EF),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                _buildHeader(),
-                const SizedBox(height: 20),
-                _buildFrogBanner(),
-                const SizedBox(height: 40),
-                _buildQuestCard(),
-                const SizedBox(height: 24),
-                _buildContinueButton(),
-                const SizedBox(height: 24),
-              ],
-            ),
+    return SafeArea(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              _buildHeader(),
+              const SizedBox(height: 20),
+              _buildFrogBanner(),
+              const SizedBox(height: 40),
+              _buildQuestCard(),
+              const SizedBox(height: 24),
+              _buildContinueButton(),
+              const SizedBox(height: 24),
+            ],
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
@@ -83,26 +78,32 @@ class QuestView extends GetView<QuestController> {
                         const Icon(Icons.favorite,
                             color: Color(0xFFE53935), size: 15),
                         const SizedBox(width: 3),
-                        Obx(() => Text(
-                              '${_home.hearts.value}/5',
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFFE53935),
-                              ),
-                            )),
+                        Flexible(
+                          child: Obx(() => Text(
+                                '${_home.hearts.value}/5',
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFE53935),
+                                ),
+                              )),
+                        ),
                         const SizedBox(width: 10),
                         const Icon(Icons.bolt,
                             color: Color(0xFFFFB300), size: 15),
                         const SizedBox(width: 3),
-                        Obx(() => Text(
-                              '${_home.xp.value} XP',
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFFFFB300),
-                              ),
-                            )),
+                        Flexible(
+                          child: Obx(() => Text(
+                                '${_home.xp.value} XP',
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFFFB300),
+                                ),
+                              )),
+                        ),
                       ],
                     ),
                   ],
@@ -190,7 +191,6 @@ class QuestView extends GetView<QuestController> {
       clipBehavior: Clip.none,
       alignment: Alignment.topCenter,
       children: [
-        // Card body — top padding leaves room for the overlapping circle
         Container(
           margin: const EdgeInsets.only(top: 36),
           width: double.infinity,
@@ -278,7 +278,6 @@ class QuestView extends GetView<QuestController> {
             ],
           ),
         ),
-        // Overlapping circle icon sitting on top edge of card
         Container(
           width: 72,
           height: 72,
@@ -333,52 +332,6 @@ class QuestView extends GetView<QuestController> {
           ),
         ),
       ),
-    );
-  }
-
-  // ─── Bottom Nav ───────────────────────────────────────────────────────────────
-
-  Widget _buildBottomNav() {
-    return BottomNavigationBar(
-      currentIndex: 1,
-      onTap: (index) {
-        switch (index) {
-          case 0:
-            Get.offNamed(Routes.HOME);
-            break;
-          case 2:
-            Get.offNamed(Routes.PROGRESS);
-            break;
-          case 3:
-            Get.offNamed(Routes.PROFILE);
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color(0xFF3DAA4C),
-      unselectedItemColor: Colors.grey,
-      showUnselectedLabels: true,
-      items: [
-        _navItem(Icons.home_rounded, 'Home', false),
-        _navItem(Icons.explore_outlined, 'Quest', true),
-        _navItem(Icons.bar_chart_rounded, 'Progress', false),
-        _navItem(Icons.person_outline_rounded, 'Hero', false),
-      ],
-    );
-  }
-
-  BottomNavigationBarItem _navItem(IconData icon, String label, bool active) {
-    return BottomNavigationBarItem(
-      icon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? const Color(0xFFA1FA49) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(icon, size: 26),
-      ),
-      label: label,
     );
   }
 

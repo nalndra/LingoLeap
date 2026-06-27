@@ -4,6 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/home_controller.dart';
 import '../../../routes/app_pages.dart';
+import '../../quest/views/quest_view.dart';
+import '../../progress/views/progress_view.dart';
+import '../../profile/views/profile_view.dart';
+
+// ─── Shell ────────────────────────────────────────────────────────────────────
 
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
@@ -12,46 +17,115 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF9EF),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.toNamed(Routes.CHAT_LIPPO),
-        backgroundColor: const Color(0xFF3DAA4C),
-        shape: const CircleBorder(),
-        elevation: 4,
-        child: const Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 26),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                _buildHeader(),
-                const SizedBox(height: 24),
-                _buildGreeting(),
-                const SizedBox(height: 16),
-                _buildQuoteBox(),
-                const SizedBox(height: 20),
-                _buildTutorialCard(),
-                const SizedBox(height: 16),
-                _buildPetualanganCard(),
-                const SizedBox(height: 16),
-                _buildLatihanCard(),
-                const SizedBox(height: 16),
-                _buildDailyMissionCard(),
-                const SizedBox(height: 24),
-              ],
-            ),
+      floatingActionButton: Obx(
+        () => AnimatedScale(
+          scale: controller.tabIndex.value == 0 ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 200),
+          child: FloatingActionButton(
+            onPressed: controller.tabIndex.value == 0
+                ? () => Get.toNamed(Routes.CHAT_LIPPO)
+                : null,
+            backgroundColor: const Color(0xFF3DAA4C),
+            shape: const CircleBorder(),
+            elevation: 4,
+            child: const Icon(Icons.chat_bubble_rounded,
+                color: Colors.white, size: 26),
           ),
         ),
+      ),
+      body: PageView(
+        controller: controller.pageController,
+        onPageChanged: controller.onPageSwiped,
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        children: const [
+          _HomeTab(),
+          QuestView(),
+          ProgressView(),
+          ProfileView(),
+        ],
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  // ─── Header ──────────────────────────────────────────────────────────────────
+  // ─── Bottom Nav ───────────────────────────────────────────────────────────────
+
+  Widget _buildBottomNav() {
+    return Obx(() {
+      final idx = controller.tabIndex.value;
+      return BottomNavigationBar(
+        currentIndex: idx,
+        onTap: controller.changeTab,
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF3DAA4C),
+        unselectedItemColor: Colors.grey,
+        showUnselectedLabels: true,
+        items: [
+          _navItem(Icons.home_rounded, 'Home', idx == 0),
+          _navItem(Icons.explore_outlined, 'Quest', idx == 1),
+          _navItem(Icons.bar_chart_rounded, 'Progress', idx == 2),
+          _navItem(Icons.person_outline_rounded, 'Hero', idx == 3),
+        ],
+      );
+    });
+  }
+
+  BottomNavigationBarItem _navItem(IconData icon, String label, bool active) {
+    return BottomNavigationBarItem(
+      icon: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+        decoration: BoxDecoration(
+          color: active ? const Color(0xFFA1FA49) : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Icon(icon, size: 26),
+      ),
+      label: label,
+    );
+  }
+}
+
+// ─── Home Tab Content ─────────────────────────────────────────────────────────
+
+class _HomeTab extends GetView<HomeController> {
+  const _HomeTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              _buildHeader(),
+              const SizedBox(height: 24),
+              _buildGreeting(),
+              const SizedBox(height: 16),
+              _buildQuoteBox(),
+              const SizedBox(height: 20),
+              _buildTutorialCard(),
+              const SizedBox(height: 16),
+              _buildPetualanganCard(),
+              const SizedBox(height: 16),
+              _buildLatihanCard(),
+              const SizedBox(height: 16),
+              _buildDailyMissionCard(),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Header ────────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
     return Row(
@@ -93,26 +167,32 @@ class HomeView extends GetView<HomeController> {
                         const Icon(Icons.favorite,
                             color: Color(0xFFE53935), size: 15),
                         const SizedBox(width: 3),
-                        Obx(() => Text(
-                              '${controller.hearts.value}/5',
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFFE53935),
-                              ),
-                            )),
+                        Flexible(
+                          child: Obx(() => Text(
+                                '${controller.hearts.value}/5',
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFE53935),
+                                ),
+                              )),
+                        ),
                         const SizedBox(width: 10),
                         const Icon(Icons.bolt,
                             color: Color(0xFFFFB300), size: 15),
                         const SizedBox(width: 3),
-                        Obx(() => Text(
-                              '${controller.xp.value} XP',
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFFFFB300),
-                              ),
-                            )),
+                        Flexible(
+                          child: Obx(() => Text(
+                                '${controller.xp.value} XP',
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFFFFB300),
+                                ),
+                              )),
+                        ),
                       ],
                     ),
                   ],
@@ -142,7 +222,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ─── Greeting ─────────────────────────────────────────────────────────────────
+  // ─── Greeting ──────────────────────────────────────────────────────────────
 
   Widget _buildGreeting() {
     return Column(
@@ -170,7 +250,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ─── Quote Box ────────────────────────────────────────────────────────────────
+  // ─── Quote Box ─────────────────────────────────────────────────────────────
 
   Widget _buildQuoteBox() {
     return Container(
@@ -193,7 +273,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ─── Tutorial Card ────────────────────────────────────────────────────────────
+  // ─── Tutorial Card ─────────────────────────────────────────────────────────
 
   Widget _buildTutorialCard() {
     return Container(
@@ -252,8 +332,8 @@ class HomeView extends GetView<HomeController> {
                 value: 0.3,
                 minHeight: 8,
                 backgroundColor: Colors.white.withValues(alpha: 0.3),
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                    Color(0xFFA1FA49)),
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(Color(0xFFA1FA49)),
               ),
             ),
             const SizedBox(height: 16),
@@ -269,7 +349,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ─── Petualangan Card (Locked) ────────────────────────────────────────────────
+  // ─── Petualangan Card ──────────────────────────────────────────────────────
 
   Widget _buildPetualanganCard() {
     return Container(
@@ -327,7 +407,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ─── Latihan Card ─────────────────────────────────────────────────────────────
+  // ─── Latihan Card ──────────────────────────────────────────────────────────
 
   Widget _buildLatihanCard() {
     return Container(
@@ -401,7 +481,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ─── Daily Mission Card ───────────────────────────────────────────────────────
+  // ─── Daily Mission Card ────────────────────────────────────────────────────
 
   Widget _buildDailyMissionCard() {
     return Container(
@@ -464,7 +544,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  // ─── Shared Helpers ───────────────────────────────────────────────────────────
+  // ─── Shared Helpers ────────────────────────────────────────────────────────
 
   Widget _buildTag(String label, Color color) {
     return Container(
@@ -513,52 +593,6 @@ class HomeView extends GetView<HomeController> {
           ),
         ),
       ),
-    );
-  }
-
-  // ─── Bottom Nav ───────────────────────────────────────────────────────────────
-
-  Widget _buildBottomNav() {
-    return BottomNavigationBar(
-      currentIndex: 0,
-      onTap: (index) {
-        switch (index) {
-          case 1:
-            Get.offNamed(Routes.QUEST);
-            break;
-          case 2:
-            Get.offNamed(Routes.PROGRESS);
-            break;
-          case 3:
-            Get.offNamed(Routes.PROFILE);
-            break;
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.white,
-      selectedItemColor: const Color(0xFF3DAA4C),
-      unselectedItemColor: Colors.grey,
-      showUnselectedLabels: true,
-      items: [
-        _navItem(Icons.home_rounded, 'Home', true),
-        _navItem(Icons.explore_outlined, 'Quest', false),
-        _navItem(Icons.bar_chart_rounded, 'Progress', false),
-        _navItem(Icons.person_outline_rounded, 'Hero', false),
-      ],
-    );
-  }
-
-  BottomNavigationBarItem _navItem(IconData icon, String label, bool active) {
-    return BottomNavigationBarItem(
-      icon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-          color: active ? const Color(0xFFA1FA49) : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(icon, size: 26),
-      ),
-      label: label,
     );
   }
 }
