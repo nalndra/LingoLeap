@@ -18,6 +18,8 @@ import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/tutorial/bindings/tutorial_binding.dart';
 import '../modules/tutorial/views/tutorial_view.dart';
+import '../modules/quest/bindings/quest_binding.dart';
+import '../modules/quest/views/quest_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
 import '../modules/welcome/views/welcome_view.dart';
 
@@ -81,6 +83,12 @@ class AppPages {
       name: _Paths.PROFILE,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.QUEST,
+      page: () => const QuestView(),
+      binding: QuestBinding(),
+      transition: Transition.noTransition,
     ),
   ];
 }

@@ -13,6 +13,7 @@ abstract class Routes {
   static const LATIHAN = _Paths.LATIHAN;
   static const PROGRESS = _Paths.PROGRESS;
   static const PROFILE = _Paths.PROFILE;
+  static const QUEST = _Paths.QUEST;
 }
 
 abstract class _Paths {
@@ -27,4 +28,5 @@ abstract class _Paths {
   static const LATIHAN = '/latihan';
   static const PROGRESS = '/progress';
   static const PROFILE = '/profile';
+  static const QUEST = '/quest';
 }

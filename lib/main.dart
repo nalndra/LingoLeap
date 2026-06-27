@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'app/modules/home/controllers/home_controller.dart';
 import 'app/routes/app_pages.dart';
 import 'app/services/auth_service.dart';
 
@@ -13,6 +14,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Get.put(AuthService());
+  Get.put(HomeController(), permanent: true);
   runApp(
     GetMaterialApp(
       title: "LingoLeap",
