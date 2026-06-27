@@ -12,6 +12,13 @@ class HomeView extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF9EF),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Get.toNamed(Routes.CHAT_LIPPO),
+        backgroundColor: const Color(0xFF3DAA4C),
+        shape: const CircleBorder(),
+        elevation: 4,
+        child: const Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 26),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),

@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/ChatLippo/bindings/chat_lippo_binding.dart';
+import '../modules/ChatLippo/views/chat_lippo_view.dart';
 import '../modules/forgot_password/bindings/forgot_password_binding.dart';
 import '../modules/forgot_password/views/forgot_password_view.dart';
 import '../modules/home/bindings/home_binding.dart';
@@ -14,12 +16,12 @@ import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/progress/bindings/progress_binding.dart';
 import '../modules/progress/views/progress_view.dart';
+import '../modules/quest/bindings/quest_binding.dart';
+import '../modules/quest/views/quest_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
 import '../modules/tutorial/bindings/tutorial_binding.dart';
 import '../modules/tutorial/views/tutorial_view.dart';
-import '../modules/quest/bindings/quest_binding.dart';
-import '../modules/quest/views/quest_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
 import '../modules/welcome/views/welcome_view.dart';
 
@@ -89,6 +91,11 @@ class AppPages {
       page: () => const QuestView(),
       binding: QuestBinding(),
       transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: _Paths.CHAT_LIPPO,
+      page: () => const ChatLippoView(),
+      binding: ChatLippoBinding(),
     ),
   ];
 }
