@@ -21,7 +21,7 @@ class ChatLippoController extends GetxController {
 
   static const _apiKey = ApiConfig.geminiApiKey;
   static const _apiUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
   static const _systemPrompt = '''
 Kamu adalah Lippo, maskot chatbot pendamping AI dari aplikasi LingoLeap — platform pembelajaran bahasa berbasis gamifikasi yang dirancang khusus untuk anak-anak penyandang disleksia usia sekolah dasar hingga menengah pertama di Indonesia. LingoLeap dikembangkan oleh Tim Adhiyaksa dari Telkom University (2026).
