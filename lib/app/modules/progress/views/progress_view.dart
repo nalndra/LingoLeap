@@ -12,102 +12,21 @@ class ProgressView extends GetView<ProgressController> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 20),
-              _buildLevelCard(),
-              const SizedBox(height: 16),
-              _buildStatisticCard(),
-              const SizedBox(height: 16),
-              _buildQuestJourneyCard(),
-              const SizedBox(height: 24),
-            ],
-          ),
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          children: [
+            _buildLevelCard(),
+            const SizedBox(height: 16),
+            _buildStatisticCard(),
+            const SizedBox(height: 16),
+            _buildQuestJourneyCard(),
+            const SizedBox(height: 24),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      children: [
-        Image.asset(
-          'assets/profile/frog_icon.png',
-          width: 56,
-          height: 56,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const CircleAvatar(
-            radius: 28,
-            backgroundColor: Color(0xFF3DAA4C),
-            child: Icon(Icons.person_rounded, color: Colors.white, size: 32),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _home.currentUser?.displayName ?? 'Pahlawan',
-                style: GoogleFonts.outfit(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF2977C7),
-                ),
-              ),
-              const SizedBox(height: 3),
-              Row(
-                children: [
-                  const Icon(Icons.favorite, color: Color(0xFFE53935), size: 15),
-                  const SizedBox(width: 3),
-                  Flexible(
-                    child: Obx(() => Text(
-                          '${_home.hearts.value}/5',
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFFE53935),
-                          ),
-                        )),
-                  ),
-                  const SizedBox(width: 10),
-                  const Icon(Icons.bolt, color: Color(0xFFFFB300), size: 15),
-                  const SizedBox(width: 3),
-                  Flexible(
-                    child: Obx(() => Text(
-                          '${_home.xp.value} XP',
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFFFFB300),
-                          ),
-                        )),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Obx(() => Image.asset(
-              _home.rankBadgeAsset,
-              width: 48,
-              height: 48,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.military_tech_rounded,
-                size: 40,
-                color: Color(0xFFCD7F32),
-              ),
-            )),
-      ],
     );
   }
 
@@ -147,7 +66,7 @@ class ProgressView extends GetView<ProgressController> {
                     width: 64,
                     height: 64,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const Icon(
+                    errorBuilder: (ctx, e, s) => const Icon(
                       Icons.catching_pokemon_rounded,
                       color: Colors.white,
                       size: 52,
