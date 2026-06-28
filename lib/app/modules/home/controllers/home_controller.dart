@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../routes/app_pages.dart';
+import '../../../services/pin_service.dart';
 
 class QuizQuestion {
   final String questionText;
@@ -162,6 +163,9 @@ class HomeController extends GetxController {
   }
 
   void logout() async {
+    try {
+      Get.find<PinService>().clearLocalPin();
+    } catch (_) {}
     await _auth.signOut();
     Get.offAllNamed(Routes.LOGIN);
   }

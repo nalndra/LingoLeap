@@ -19,7 +19,7 @@ class ChatLippoController extends GetxController {
   final textController = TextEditingController();
   final scrollController = ScrollController();
 
-  static const _apiKey = geminiApiKey;
+  static const _apiKey = ApiConfig.geminiApiKey;
   static const _apiUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 

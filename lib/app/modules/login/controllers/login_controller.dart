@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../routes/app_pages.dart';
 class LoginController extends GetxController {
   final emailController = TextEditingController();
@@ -45,6 +46,24 @@ class LoginController extends GetxController {
         email: email,
         password: password,
       );
+
+      // Auto-migrate legacy accounts that don't have a Firestore document
+      final uid = userCredential.user?.uid;
+      final displayName = userCredential.user?.displayName ?? 'Pahlawan';
+      if (uid != null) {
+        final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        if (!doc.exists) {
+          await FirebaseFirestore.instance.collection('users').doc(uid).set({
+            'name': displayName,
+            'email': email,
+            'role': 'child',
+            'level': 1,
+            'xp': 0,
+            'parentId': null,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+      }
       
       final user = userCredential.user;
 

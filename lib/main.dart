@@ -5,6 +5,7 @@ import 'firebase_options.dart';
 import 'app/modules/home/controllers/home_controller.dart';
 import 'app/routes/app_pages.dart';
 import 'app/services/auth_service.dart';
+import 'app/services/pin_service.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 
@@ -14,6 +15,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Get.put(AuthService());
+  await Get.putAsync(() => PinService().init());
   Get.put(HomeController(), permanent: true);
   runApp(
     GetMaterialApp(

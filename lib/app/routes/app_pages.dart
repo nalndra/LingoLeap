@@ -27,6 +27,23 @@ import '../modules/verify_email/views/verify_email_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
 import '../modules/welcome/views/welcome_view.dart';
 
+import '../modules/parent_login/bindings/parent_login_binding.dart';
+import '../modules/parent_login/views/parent_login_view.dart';
+import '../modules/parent_register/bindings/parent_register_binding.dart';
+import '../modules/parent_register/views/parent_register_view.dart';
+import '../modules/parent_dashboard/bindings/parent_dashboard_binding.dart';
+import '../modules/parent_dashboard/views/parent_dashboard_view.dart';
+import '../modules/parent_settings/bindings/parent_settings_binding.dart';
+import '../modules/parent_settings/views/parent_settings_view.dart';
+import '../modules/premium/bindings/premium_binding.dart';
+import '../modules/premium/views/premium_view.dart';
+import '../modules/pin/bindings/pin_binding.dart';
+import '../modules/pin/views/pin_setup_view.dart';
+import '../modules/pin/views/pin_confirm_view.dart';
+import '../modules/pin/views/pin_login_view.dart';
+import '../modules/add_child/bindings/add_child_binding.dart';
+import '../modules/add_child/views/add_child_view.dart';
+
 part 'app_routes.dart';
 
 class AppPages {
@@ -103,6 +120,60 @@ class AppPages {
       name: _Paths.VERIFY_EMAIL,
       page: () => const VerifyEmailView(),
       binding: VerifyEmailBinding(),
+    ),
+    GetPage(
+      name: _Paths.PARENT_LOGIN,
+      page: () => const ParentLoginView(),
+      binding: ParentLoginBinding(),
+      transition: Transition.downToUp,
+    ),
+    GetPage(
+      name: _Paths.PARENT_REGISTER,
+      page: () => const ParentRegisterView(),
+      binding: ParentRegisterBinding(),
+      transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: _Paths.PARENT_DASHBOARD,
+      page: () => const ParentDashboardView(),
+      binding: ParentDashboardBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: _Paths.PARENT_SETTINGS,
+      page: () => const ParentSettingsView(),
+      binding: ParentSettingsBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: _Paths.PREMIUM,
+      page: () => const PremiumView(),
+      binding: PremiumBinding(),
+    ),
+    GetPage(
+      name: _Paths.PIN_SETUP,
+      page: () => const PinSetupView(),
+      binding: PinBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: _Paths.PIN_CONFIRM,
+      page: () => const PinConfirmView(),
+      binding: PinBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: _Paths.PIN_LOGIN,
+      page: () => const PinLoginView(),
+      binding: PinBinding(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: _Paths.ADD_CHILD,
+      page: () => const AddChildView(),
+      binding: AddChildBinding(),
+      transition: Transition.rightToLeft,
+>>>>>>> 8e41af4 (feat: add parent dashboard, pin protection, and child linking features)
     ),
   ];
 }

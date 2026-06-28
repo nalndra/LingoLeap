@@ -30,17 +30,8 @@ class _RegisterViewState extends State<RegisterView> {
                 // Logo
                 Image.asset(
                   'assets/auth/lingoleapGreen.png',
-                  height: 150,
-                  errorBuilder: (context, error, stackTrace) => const SizedBox(
-                    height: 150,
-                    child: Center(
-                      child: Icon(
-                        Icons.language,
-                        size: 90,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ),
+                  height: 100,
+                  fit: BoxFit.contain,
                 ),
 
                 const SizedBox(height: 16),

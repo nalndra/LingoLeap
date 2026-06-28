@@ -16,6 +16,15 @@ abstract class Routes {
   static const QUEST = _Paths.QUEST;
   static const CHAT_LIPPO = _Paths.CHAT_LIPPO;
   static const VERIFY_EMAIL = _Paths.VERIFY_EMAIL;
+  static const PARENT_LOGIN = _Paths.PARENT_LOGIN;
+  static const PARENT_REGISTER = _Paths.PARENT_REGISTER;
+  static const PARENT_DASHBOARD = _Paths.PARENT_DASHBOARD;
+  static const PARENT_SETTINGS = _Paths.PARENT_SETTINGS;
+  static const PREMIUM = _Paths.PREMIUM;
+  static const PIN_SETUP = _Paths.PIN_SETUP;
+  static const PIN_CONFIRM = _Paths.PIN_CONFIRM;
+  static const PIN_LOGIN = _Paths.PIN_LOGIN;
+  static const ADD_CHILD = _Paths.ADD_CHILD;
 }
 
 abstract class _Paths {
@@ -33,4 +42,13 @@ abstract class _Paths {
   static const QUEST = '/quest';
   static const CHAT_LIPPO = '/chat-lippo';
   static const VERIFY_EMAIL = '/verify-email';
+  static const PARENT_LOGIN = '/parent-login';
+  static const PARENT_REGISTER = '/parent-register';
+  static const PARENT_DASHBOARD = '/parent-dashboard';
+  static const PARENT_SETTINGS = '/parent-settings';
+  static const PREMIUM = '/premium';
+  static const PIN_SETUP = '/pin-setup';
+  static const PIN_CONFIRM = '/pin-confirm';
+  static const PIN_LOGIN = '/pin-login';
+  static const ADD_CHILD = '/add-child';
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../routes/app_pages.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterController extends GetxController {
   final emailController = TextEditingController();
@@ -68,6 +69,28 @@ class RegisterController extends GetxController {
       } catch (e) {
         debugPrint('sendEmailVerification error: $e');
       }
+
+      // Save child profile to Firestore
+      final uid = userCredential.user?.uid;
+      if (uid != null) {
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'name': name,
+          'email': email,
+          'role': 'child',
+          'level': 1,
+          'xp': 0,
+          'parentId': null,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      Get.snackbar(
+        'Sukses',
+        'Akun pahlawan $name berhasil dibuat! Silakan verifikasi email.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
 
       Get.offAllNamed(Routes.VERIFY_EMAIL);
     } on FirebaseAuthException catch (e) {

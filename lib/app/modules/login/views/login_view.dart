@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../controllers/login_controller.dart';
 import '../../../routes/app_pages.dart';
+import '../../../services/pin_service.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -217,6 +218,22 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ),
 
+                const SizedBox(height: 16),
+                
+                // Masuk sebagai Orang Tua (Text Button)
+                TextButton(
+                  onPressed: () => Get.toNamed('/parent-login'),
+                  child: Text(
+                    'Masuk sebagai Orang Tua',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1A3A6B),
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 24),
               ],
             ),
@@ -226,6 +243,21 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
+<<<<<<< HEAD
+=======
+  Widget _buildLogoAndTitle() {
+    return Column(
+      children: [
+        Image.asset(
+          'assets/auth/lingoleapGreen.png',
+          height: 100,
+          fit: BoxFit.contain,
+        ),
+      ],
+    );
+  }
+
+>>>>>>> 8e41af4 (feat: add parent dashboard, pin protection, and child linking features)
   Widget _buildLabel(String text) {
     return Text(
       text,
