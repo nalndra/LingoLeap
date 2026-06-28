@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-import '../../../config/api_config.dart';
+import '../../../config/api_config.dart' as api_config;
 
 class ChatMessage {
   final String text;
@@ -19,7 +19,7 @@ class ChatLippoController extends GetxController {
   final textController = TextEditingController();
   final scrollController = ScrollController();
 
-  static const _apiKey = ApiConfig.geminiApiKey;
+  static const _apiKey = api_config.geminiApiKey;
   static const _apiUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 

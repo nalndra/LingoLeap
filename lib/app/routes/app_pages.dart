@@ -2,8 +2,18 @@ import 'package:get/get.dart';
 
 import '../modules/ChatLippo/bindings/chat_lippo_binding.dart';
 import '../modules/ChatLippo/views/chat_lippo_view.dart';
+import '../modules/add_child/bindings/add_child_binding.dart';
+import '../modules/add_child/views/add_child_view.dart';
 import '../modules/forgot_password/bindings/forgot_password_binding.dart';
 import '../modules/forgot_password/views/forgot_password_view.dart';
+import '../modules/game_fonem/bindings/game_fonem_binding.dart';
+import '../modules/game_fonem/views/game_fonem_view.dart';
+import '../modules/game_kosakata/bindings/game_kosakata_binding.dart';
+import '../modules/game_kosakata/views/game_kosakata_view.dart';
+import '../modules/game_rima/bindings/game_rima_binding.dart';
+import '../modules/game_rima/views/game_rima_view.dart';
+import '../modules/game_sukukata/bindings/game_sukukata_binding.dart';
+import '../modules/game_sukukata/views/game_sukukata_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
 import '../modules/latihan/bindings/latihan_binding.dart';
@@ -12,6 +22,20 @@ import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/new_password/bindings/new_password_binding.dart';
 import '../modules/new_password/views/new_password_view.dart';
+import '../modules/parent_dashboard/bindings/parent_dashboard_binding.dart';
+import '../modules/parent_dashboard/views/parent_dashboard_view.dart';
+import '../modules/parent_login/bindings/parent_login_binding.dart';
+import '../modules/parent_login/views/parent_login_view.dart';
+import '../modules/parent_register/bindings/parent_register_binding.dart';
+import '../modules/parent_register/views/parent_register_view.dart';
+import '../modules/parent_settings/bindings/parent_settings_binding.dart';
+import '../modules/parent_settings/views/parent_settings_view.dart';
+import '../modules/pin/bindings/pin_binding.dart';
+import '../modules/pin/views/pin_confirm_view.dart';
+import '../modules/pin/views/pin_login_view.dart';
+import '../modules/pin/views/pin_setup_view.dart';
+import '../modules/premium/bindings/premium_binding.dart';
+import '../modules/premium/views/premium_view.dart';
 import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/progress/bindings/progress_binding.dart';
@@ -26,23 +50,6 @@ import '../modules/verify_email/bindings/verify_email_binding.dart';
 import '../modules/verify_email/views/verify_email_view.dart';
 import '../modules/welcome/bindings/welcome_binding.dart';
 import '../modules/welcome/views/welcome_view.dart';
-
-import '../modules/parent_login/bindings/parent_login_binding.dart';
-import '../modules/parent_login/views/parent_login_view.dart';
-import '../modules/parent_register/bindings/parent_register_binding.dart';
-import '../modules/parent_register/views/parent_register_view.dart';
-import '../modules/parent_dashboard/bindings/parent_dashboard_binding.dart';
-import '../modules/parent_dashboard/views/parent_dashboard_view.dart';
-import '../modules/parent_settings/bindings/parent_settings_binding.dart';
-import '../modules/parent_settings/views/parent_settings_view.dart';
-import '../modules/premium/bindings/premium_binding.dart';
-import '../modules/premium/views/premium_view.dart';
-import '../modules/pin/bindings/pin_binding.dart';
-import '../modules/pin/views/pin_setup_view.dart';
-import '../modules/pin/views/pin_confirm_view.dart';
-import '../modules/pin/views/pin_login_view.dart';
-import '../modules/add_child/bindings/add_child_binding.dart';
-import '../modules/add_child/views/add_child_view.dart';
 
 part 'app_routes.dart';
 
@@ -173,6 +180,26 @@ class AppPages {
       page: () => const AddChildView(),
       binding: AddChildBinding(),
       transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: _Paths.GAME_SUKUKATA,
+      page: () => const GameSukukataView(),
+      binding: GameSukukataBinding(),
+    ),
+    GetPage(
+      name: _Paths.GAME_KOSAKATA,
+      page: () => const GameKosakataView(),
+      binding: GameKosakataBinding(),
+    ),
+    GetPage(
+      name: _Paths.GAME_FONEM,
+      page: () => const GameFonemView(),
+      binding: GameFonemBinding(),
+    ),
+    GetPage(
+      name: _Paths.GAME_RIMA,
+      page: () => const GameRimaView(),
+      binding: GameRimaBinding(),
     ),
   ];
 }

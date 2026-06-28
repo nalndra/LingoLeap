@@ -21,9 +21,19 @@ class HomeView extends GetView<HomeController> {
       body: SafeArea(
         child: Column(
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: AppHeader(),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F0E8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.07),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 18),
+              child: const AppHeader(),
             ),
             Expanded(
               child: PageView(

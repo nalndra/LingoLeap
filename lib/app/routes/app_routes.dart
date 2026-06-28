@@ -25,6 +25,10 @@ abstract class Routes {
   static const PIN_CONFIRM = _Paths.PIN_CONFIRM;
   static const PIN_LOGIN = _Paths.PIN_LOGIN;
   static const ADD_CHILD = _Paths.ADD_CHILD;
+  static const GAME_SUKUKATA = _Paths.GAME_SUKUKATA;
+  static const GAME_KOSAKATA = _Paths.GAME_KOSAKATA;
+  static const GAME_FONEM = _Paths.GAME_FONEM;
+  static const GAME_RIMA = _Paths.GAME_RIMA;
 }
 
 abstract class _Paths {
@@ -51,4 +55,8 @@ abstract class _Paths {
   static const PIN_CONFIRM = '/pin-confirm';
   static const PIN_LOGIN = '/pin-login';
   static const ADD_CHILD = '/add-child';
+  static const GAME_SUKUKATA = '/game-sukukata';
+  static const GAME_KOSAKATA = '/game-kosakata';
+  static const GAME_FONEM = '/game-fonem';
+  static const GAME_RIMA = '/game-rima';
 }
