@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/login_controller.dart';
 import '../../../routes/app_pages.dart';
@@ -243,8 +244,6 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-<<<<<<< HEAD
-=======
   Widget _buildLogoAndTitle() {
     return Column(
       children: [
@@ -257,7 +256,6 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
->>>>>>> 8e41af4 (feat: add parent dashboard, pin protection, and child linking features)
   Widget _buildLabel(String text) {
     return Text(
       text,

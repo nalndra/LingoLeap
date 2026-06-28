@@ -173,7 +173,6 @@ class AppPages {
       page: () => const AddChildView(),
       binding: AddChildBinding(),
       transition: Transition.rightToLeft,
->>>>>>> 8e41af4 (feat: add parent dashboard, pin protection, and child linking features)
     ),
   ];
 }
