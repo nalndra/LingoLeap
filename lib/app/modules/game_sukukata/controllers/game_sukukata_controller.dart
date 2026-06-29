@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/child_progress_service.dart';
+import '../../../services/feedback_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class _LetterQuestion {
@@ -85,6 +86,7 @@ class GameSukukataController extends GetxController {
   String get word => _active[currentIndex.value].word;
   int get totalQuestions => _active.length;
   double get progress => (currentIndex.value + 1) / _active.length;
+  bool get adventureMode => _adventureMode;
 
   @override
   void onInit() {
@@ -95,6 +97,10 @@ class GameSukukataController extends GetxController {
       final pool = _questions.where((q) => q.word.length == 4).toList()
         ..shuffle(Random());
       _active = pool.take(2).toList();
+      currentIndex = 0.obs;
+    } else if (_adventureMode) {
+      final count = (Get.arguments?['questionCount'] as int?) ?? 5;
+      _active = (List.of(_questions)..shuffle(Random())).take(count).toList();
       currentIndex = 0.obs;
     } else {
       _active = List.of(_questions);
@@ -107,7 +113,8 @@ class GameSukukataController extends GetxController {
   void _saveProgress() {
     if (_isSaved) return;
     _isSaved = true;
-    
+    // Adventure mode tidak memakai resume index — skip saveGameResult
+    if (_adventureMode) return;
     if (_sessionPlayedCount > 0) {
       try {
         Get.find<ChildProgressService>().saveGameResult(
@@ -150,6 +157,7 @@ class GameSukukataController extends GetxController {
     if (tileUsed[originalIdx]) return;
     final emptySlot = slotTileIndex.indexWhere((i) => i == -1);
     if (emptySlot == -1) return;
+    try { Get.find<FeedbackService>().tap(); } catch (_) {}
     slotTileIndex[emptySlot] = originalIdx;
     tileUsed[originalIdx] = true;
     slotTileIndex.refresh();
@@ -159,6 +167,7 @@ class GameSukukataController extends GetxController {
   void tapSlot(int slotIndex) {
     final tIdx = slotTileIndex[slotIndex];
     if (tIdx == -1) return;
+    try { Get.find<FeedbackService>().tap(); } catch (_) {}
     tileUsed[tIdx] = false;
     slotTileIndex[slotIndex] = -1;
     slotTileIndex.refresh();
@@ -188,6 +197,10 @@ class GameSukukataController extends GetxController {
       _correctCount++;
     } else {
       _wrongWords.add(word);
+      try { Get.find<FeedbackService>().wrong(); } catch (_) {}
+      if (_adventureMode) {
+        try { Get.find<ChildProgressService>().loseHeart(); } catch (_) {}
+      }
     }
     _showResultSheet(isCorrect: isCorrect);
   }
@@ -205,7 +218,11 @@ class GameSukukataController extends GetxController {
           Get.back();
           if (isLast) {
             _saveProgress();
-            Get.back(result: (_tutorialMode || _adventureMode) ? true : null);
+            Get.back(
+              result: _adventureMode
+                  ? {'correct': _correctCount, 'total': _active.length}
+                  : (_tutorialMode ? true : null),
+            );
           } else {
             currentIndex.value++;
             _loadQuestion();

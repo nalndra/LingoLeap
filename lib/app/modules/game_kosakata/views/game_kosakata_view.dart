@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/game_kosakata_controller.dart';
+import '../../../widgets/adventure_hearts_bar.dart';
 
 class GameKosakataView extends GetView<GameKosakataController> {
   const GameKosakataView({super.key});
@@ -21,6 +22,10 @@ class GameKosakataView extends GetView<GameKosakataController> {
                 child: Column(
                   children: [
                     const SizedBox(height: 24),
+                    if (controller.adventureMode) ...[
+                      const AdventureHeartsBar(),
+                      const SizedBox(height: 14),
+                    ],
                     _buildInstructionBox(),
                     const SizedBox(height: 36),
                     _buildAnswerSlots(),

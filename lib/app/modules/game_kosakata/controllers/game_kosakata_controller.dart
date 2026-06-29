@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/child_progress_service.dart';
+import '../../../services/feedback_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class _WordQuestion {
@@ -61,6 +62,7 @@ class GameKosakataController extends GetxController {
   String get word => _active[currentIndex.value].word;
   int get totalQuestions => _active.length;
   double get progress => (currentIndex.value + 1) / _active.length;
+  bool get adventureMode => _adventureMode;
 
   @override
   void onInit() {
@@ -71,6 +73,10 @@ class GameKosakataController extends GetxController {
       final pool = _questions.where((q) => q.syllables.length == 3).toList()
         ..shuffle(Random());
       _active = pool.take(2).toList();
+      currentIndex = 0.obs;
+    } else if (_adventureMode) {
+      final count = (Get.arguments?['questionCount'] as int?) ?? 5;
+      _active = (List.of(_questions)..shuffle(Random())).take(count).toList();
       currentIndex = 0.obs;
     } else {
       _active = List.of(_questions);
@@ -83,7 +89,7 @@ class GameKosakataController extends GetxController {
   void _saveProgress() {
     if (_isSaved) return;
     _isSaved = true;
-    
+    if (_adventureMode) return;
     if (_sessionPlayedCount > 0) {
       try {
         Get.find<ChildProgressService>().saveGameResult(
@@ -126,6 +132,7 @@ class GameKosakataController extends GetxController {
     if (bubbleUsed[originalIdx]) return;
     final emptySlot = slotBubbleIndex.indexWhere((i) => i == -1);
     if (emptySlot == -1) return;
+    try { Get.find<FeedbackService>().tap(); } catch (_) {}
     slotBubbleIndex[emptySlot] = originalIdx;
     bubbleUsed[originalIdx] = true;
     slotBubbleIndex.refresh();
@@ -135,6 +142,7 @@ class GameKosakataController extends GetxController {
   void tapSlot(int slotIndex) {
     final bIdx = slotBubbleIndex[slotIndex];
     if (bIdx == -1) return;
+    try { Get.find<FeedbackService>().tap(); } catch (_) {}
     bubbleUsed[bIdx] = false;
     slotBubbleIndex[slotIndex] = -1;
     slotBubbleIndex.refresh();
@@ -164,6 +172,10 @@ class GameKosakataController extends GetxController {
       _showResultSheet(isCorrect: true);
     } else {
       _wrongWords.add(word);
+      try { Get.find<FeedbackService>().wrong(); } catch (_) {}
+      if (_adventureMode) {
+        try { Get.find<ChildProgressService>().loseHeart(); } catch (_) {}
+      }
       _showResultSheet(isCorrect: false);
     }
   }
@@ -181,7 +193,11 @@ class GameKosakataController extends GetxController {
           Get.back();
           if (isLast) {
             _saveProgress();
-            Get.back(result: (_tutorialMode || _adventureMode) ? true : null);
+            Get.back(
+              result: _adventureMode
+                  ? {'correct': _correctCount, 'total': _active.length}
+                  : (_tutorialMode ? true : null),
+            );
           } else {
             currentIndex.value++;
             _loadQuestion();

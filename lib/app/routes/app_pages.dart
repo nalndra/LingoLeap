@@ -48,6 +48,8 @@ import '../modules/quest/bindings/quest_binding.dart';
 import '../modules/quest/views/quest_view.dart';
 import '../modules/register/bindings/register_binding.dart';
 import '../modules/register/views/register_view.dart';
+import '../modules/setting/bindings/setting_binding.dart';
+import '../modules/setting/views/setting_view.dart';
 import '../modules/tutorial/bindings/tutorial_binding.dart';
 import '../modules/tutorial/views/tutorial_view.dart';
 import '../modules/verify_email/bindings/verify_email_binding.dart';
@@ -215,6 +217,11 @@ class AppPages {
       name: _Paths.PETUALANGAN,
       page: () => const PetualanganView(),
       binding: PetualanganBinding(),
+    ),
+    GetPage(
+      name: _Paths.SETTING,
+      page: () => const SettingView(),
+      binding: SettingBinding(),
     ),
   ];
 }

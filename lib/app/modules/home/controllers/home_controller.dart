@@ -101,6 +101,7 @@ class HomeController extends GetxController {
   ChildProgressService get _progress => Get.find<ChildProgressService>();
 
   RxString get childName => _progress.childName;
+  RxString get photoUrl  => _progress.photoUrl;
   RxInt get hearts => _progress.hearts;
   RxInt get streak => _progress.streak;
   RxInt get xp => _progress.xp;

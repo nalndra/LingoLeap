@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../modules/home/controllers/home_controller.dart';
+import '../routes/app_pages.dart';
 
 class AppHeader extends StatelessWidget {
   const AppHeader({super.key});
@@ -13,16 +14,18 @@ class AppHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Avatar square
-        Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: const Color(0xFF4CAF50),
+        // Avatar square — tampilkan foto profil jika tersedia
+        Obx(() {
+          final url = _home.photoUrl.value;
+          return ClipRRect(
             borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Icon(Icons.person_rounded, color: Colors.white, size: 32),
-        ),
+            child: url.isNotEmpty
+                ? Image.network(url,
+                    width: 56, height: 56, fit: BoxFit.cover,
+                    errorBuilder: (ctx, e, s) => _defaultAvatar())
+                : _defaultAvatar(),
+          );
+        }),
         const SizedBox(width: 12),
 
         // Name + stats
@@ -83,9 +86,9 @@ class AppHeader extends StatelessWidget {
             )),
         const SizedBox(width: 10),
 
-        // Settings button
+        // Settings button → navigasi ke Setting page
         GestureDetector(
-          onTap: () => _showSettingsMenu(),
+          onTap: () => Get.toNamed(Routes.SETTING),
           child: Container(
             width: 48,
             height: 48,
@@ -107,53 +110,13 @@ class AppHeader extends StatelessWidget {
     );
   }
 
-  void _showSettingsMenu() {
-    Get.bottomSheet(
-      Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+  Widget _defaultAvatar() => Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: const Color(0xFF4CAF50),
+          borderRadius: BorderRadius.circular(16),
         ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Pengaturan',
-              style: GoogleFonts.outfit(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF2977C7),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ListTile(
-              leading: const Icon(Icons.logout_rounded, color: Colors.red),
-              title: Text(
-                'Keluar',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
-              onTap: () {
-                Get.back();
-                _home.logout();
-              },
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
-    );
-  }
+        child: const Icon(Icons.person_rounded, color: Colors.white, size: 32),
+      );
 }

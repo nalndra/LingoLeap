@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -94,7 +95,7 @@ class EditProfileView extends GetView<EditProfileController> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.10),
+              color: Colors.grey.withValues(alpha: 0.10),
               offset: const Offset(0, 4),
               blurRadius: 12,
             ),
@@ -102,32 +103,79 @@ class EditProfileView extends GetView<EditProfileController> {
         ),
         child: Column(
           children: [
-            // Green rounded-square avatar
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: _green,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Center(
-                child: Icon(Icons.person, size: 56, color: Colors.white),
-              ),
-            ),
+            Obx(() {
+              final picked = controller.pickedFile.value;
+              final url    = controller.photoUrl.value;
+
+              Widget image;
+              if (picked != null) {
+                image = ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.file(File(picked.path),
+                      width: 100, height: 100, fit: BoxFit.cover),
+                );
+              } else if (url.isNotEmpty) {
+                image = ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.network(url,
+                      width: 100, height: 100, fit: BoxFit.cover,
+                      errorBuilder: (ctx, e, s) => _defaultAvatar()),
+                );
+              } else {
+                image = _defaultAvatar();
+              }
+
+              return Stack(
+                children: [
+                  image,
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: _blue,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(Icons.camera_alt_rounded,
+                          color: Colors.white, size: 14),
+                    ),
+                  ),
+                ],
+              );
+            }),
             const SizedBox(height: 12),
-            // "Ubah Foto" link
-            Text(
-              'Ubah Foto',
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: _green,
-                decoration: TextDecoration.underline,
-                decorationColor: _green,
+            GestureDetector(
+              onTap: controller.pickImage,
+              child: Text(
+                'Ubah Foto',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: _green,
+                  decoration: TextDecoration.underline,
+                  decorationColor: _green,
+                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _defaultAvatar() {
+    return Container(
+      width: 100,
+      height: 100,
+      decoration: BoxDecoration(
+        color: _green,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: const Center(
+        child: Icon(Icons.person, size: 56, color: Colors.white),
       ),
     );
   }
@@ -193,12 +241,12 @@ class EditProfileView extends GetView<EditProfileController> {
                 controller.isLoading.value ? null : controller.saveProfile,
             style: ElevatedButton.styleFrom(
               backgroundColor: _blue,
-              disabledBackgroundColor: _blue.withOpacity(0.5),
+              disabledBackgroundColor: _blue.withValues(alpha: 0.5),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
               elevation: 4,
-              shadowColor: _blue.withOpacity(0.4),
+              shadowColor: _blue.withValues(alpha: 0.4),
             ),
             child: controller.isLoading.value
                 ? const SizedBox(

@@ -31,6 +31,7 @@ abstract class Routes {
   static const GAME_RIMA = _Paths.GAME_RIMA;
   static const EDIT_PROFILE = _Paths.EDIT_PROFILE;
   static const PETUALANGAN = _Paths.PETUALANGAN;
+  static const SETTING = _Paths.SETTING;
 }
 
 abstract class _Paths {
@@ -63,4 +64,5 @@ abstract class _Paths {
   static const GAME_RIMA = '/game-rima';
   static const EDIT_PROFILE = '/edit-profile';
   static const PETUALANGAN = '/petualangan';
+  static const SETTING = '/setting';
 }

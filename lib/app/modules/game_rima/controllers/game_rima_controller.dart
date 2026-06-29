@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../services/child_progress_service.dart';
+import '../../../services/feedback_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class _RimaQuestion {
@@ -64,6 +65,7 @@ class GameRimaController extends GetxController {
   int     get totalQuestions  => _shuffled.length;
   double  get progress        => (currentIndex.value + 1) / totalQuestions;
   int     get correctDisplayIdx => _correctDisplayIdx.value;
+  bool    get adventureMode   => _adventureMode;
 
   @override
   void onInit() {
@@ -72,6 +74,10 @@ class GameRimaController extends GetxController {
     _adventureMode = Get.arguments?['adventureMode'] == true;
     if (_tutorialMode) {
       _shuffled = (List.of(_questions)..shuffle(Random())).take(2).toList();
+      currentIndex = 0.obs;
+    } else if (_adventureMode) {
+      final count = (Get.arguments?['questionCount'] as int?) ?? 5;
+      _shuffled = (List.of(_questions)..shuffle(Random())).take(count).toList();
       currentIndex = 0.obs;
     } else {
       _shuffled = List.of(_questions);
@@ -84,7 +90,7 @@ class GameRimaController extends GetxController {
   void _saveProgress() {
     if (_isSaved) return;
     _isSaved = true;
-    
+    if (_adventureMode) return;
     if (_sessionPlayedCount > 0) {
       try {
         Get.find<ChildProgressService>().saveGameResult(
@@ -124,6 +130,7 @@ class GameRimaController extends GetxController {
 
   void selectOption(int displayIdx) {
     if (isLoading.value) return;
+    try { Get.find<FeedbackService>().tap(); } catch (_) {}
     selectedOptionIdx.value = displayIdx;
   }
 
@@ -149,6 +156,10 @@ class GameRimaController extends GetxController {
       _correctCount++;
     } else {
       _wrongWords.add(word);
+      try { Get.find<FeedbackService>().wrong(); } catch (_) {}
+      if (_adventureMode) {
+        try { Get.find<ChildProgressService>().loseHeart(); } catch (_) {}
+      }
     }
     _showResultSheet(isCorrect: isCorrect);
   }
@@ -166,7 +177,11 @@ class GameRimaController extends GetxController {
           Get.back(); // tutup bottom sheet
           if (isLast) {
             _saveProgress();
-            Get.back(result: (_tutorialMode || _adventureMode) ? true : null);
+            Get.back(
+              result: _adventureMode
+                  ? {'correct': _correctCount, 'total': _shuffled.length}
+                  : (_tutorialMode ? true : null),
+            );
           } else {
             currentIndex.value++;
             _loadQuestion();

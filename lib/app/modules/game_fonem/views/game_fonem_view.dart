@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../controllers/game_fonem_controller.dart';
+import '../../../widgets/adventure_hearts_bar.dart';
 
 class GameFonemView extends GetView<GameFonemController> {
   const GameFonemView({super.key});
@@ -21,6 +22,10 @@ class GameFonemView extends GetView<GameFonemController> {
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
                 child: Column(
                   children: [
+                    if (controller.adventureMode) ...[
+                      const AdventureHeartsBar(),
+                      const SizedBox(height: 14),
+                    ],
                     _buildInstructionBox(),
                     const SizedBox(height: 24),
                     _buildPlayCard(),

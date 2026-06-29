@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../home/controllers/home_controller.dart';
 import '../controllers/progress_controller.dart';
 
 class ProgressView extends GetView<ProgressController> {
   const ProgressView({super.key});
-
-  HomeController get _home => Get.find<HomeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -30,96 +27,111 @@ class ProgressView extends GetView<ProgressController> {
     );
   }
 
+  // ─── Level Card ───────────────────────────────────────────────────────────────
+
   Widget _buildLevelCard() {
-    return Obx(() => Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xFF3DAA4C),
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2977C7),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'Level ${_home.level.value}',
-                      style: GoogleFonts.outfit(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
+    return Obx(() {
+      final cap    = controller.rankCap;
+      final xpVal  = controller.xp.value;
+      final lvl    = controller.level.value;
+      final barVal = controller.levelBarValue;
+
+      // Gold: tampilkan xp asli walau melebihi cap
+      final xpDisplay =
+          (xpVal > cap && lvl >= 20) ? xpVal : xpVal.clamp(0, cap);
+
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF3DAA4C),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2977C7),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  Image.asset(
-                    'assets/profile/frog_icon.png',
-                    width: 64,
-                    height: 64,
-                    fit: BoxFit.contain,
-                    errorBuilder: (ctx, e, s) => const Icon(
-                      Icons.catching_pokemon_rounded,
-                      color: Colors.white,
-                      size: 52,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Pahlawan Pengetahuan',
-                style: GoogleFonts.outfit(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Progress Level',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      color: Colors.white.withValues(alpha: 0.9),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    '${_home.xp.value}/1000 XP',
+                  child: Text(
+                    'Level $lvl',
                     style: GoogleFonts.outfit(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
                       color: Colors.white,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: LinearProgressIndicator(
-                  value: (_home.xp.value / 1000).clamp(0.0, 1.0),
-                  minHeight: 14,
-                  backgroundColor: Colors.white.withValues(alpha: 0.3),
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFF1A3A6B)),
                 ),
+                Image.asset(
+                  'assets/profile/frog_icon.png',
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.contain,
+                  errorBuilder: (ctx, e, s) => const Icon(
+                    Icons.catching_pokemon_rounded,
+                    color: Colors.white,
+                    size: 52,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Pahlawan Pengetahuan',
+              style: GoogleFonts.outfit(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
               ),
-            ],
-          ),
-        ));
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Progress Level',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 13,
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  '$xpDisplay/$cap XP',
+                  style: GoogleFonts.outfit(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: barVal,
+                minHeight: 14,
+                backgroundColor: Colors.white.withValues(alpha: 0.3),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                    Color(0xFF1A3A6B)),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
+
+  // ─── Statistic Card ───────────────────────────────────────────────────────────
 
   Widget _buildStatisticCard() {
     return Container(
@@ -147,17 +159,29 @@ class ProgressView extends GetView<ProgressController> {
             ),
           ),
           const SizedBox(height: 20),
-          _buildStatRow('Fokus', 0.50, const Color(0xFF2977C7)),
+          Obx(() => _buildStatRow(
+                'Fokus',
+                controller.fokus,
+                const Color(0xFF2977C7),
+              )),
           const SizedBox(height: 16),
-          _buildStatRow('Kecepatan Pengerjaan', 0.76, const Color(0xFFE8621A)),
+          Obx(() => _buildStatRow(
+                'Kecepatan Membaca',
+                controller.kecepatanMembaca,
+                const Color(0xFFE26C22),
+              )),
           const SizedBox(height: 16),
-          _buildStatRow('Ketelitian', 0.85, const Color(0xFF3DAA4C)),
+          Obx(() => _buildStatRow(
+                'Pengenalan Huruf',
+                controller.pengenalanHuruf,
+                const Color(0xFF4CAF50),
+              )),
         ],
       ),
     );
   }
 
-  Widget _buildStatRow(String label, double value, Color color) {
+  Widget _buildStatRow(String label, int value, Color color) {
     return Column(
       children: [
         Row(
@@ -172,7 +196,7 @@ class ProgressView extends GetView<ProgressController> {
               ),
             ),
             Text(
-              '${(value * 100).toInt()}%',
+              '$value%',
               style: GoogleFonts.outfit(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -185,7 +209,7 @@ class ProgressView extends GetView<ProgressController> {
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: LinearProgressIndicator(
-            value: value,
+            value: (value / 100).clamp(0.0, 1.0),
             minHeight: 12,
             backgroundColor: color.withValues(alpha: 0.12),
             valueColor: AlwaysStoppedAnimation<Color>(color),
@@ -195,17 +219,16 @@ class ProgressView extends GetView<ProgressController> {
     );
   }
 
-  Widget _buildQuestJourneyCard() {
-    final quests = [
-      _QuestStep(
-          label: 'Suku Kata', icon: Icons.text_fields_rounded, done: true),
-      _QuestStep(label: 'KosaKata', icon: Icons.menu_book_rounded, done: false),
-      _QuestStep(
-          label: 'Fonem Kata', icon: Icons.volume_up_rounded, done: false),
-      _QuestStep(
-          label: 'Rima kata', icon: Icons.headphones_rounded, done: false),
-    ];
+  // ─── Quest Journey Card ───────────────────────────────────────────────────────
 
+  static const _kCycle = [
+    _QuestDef('Suku Kata',  Icons.extension_rounded),
+    _QuestDef('Kosa Kata',  Icons.menu_book_rounded),
+    _QuestDef('Rima',       Icons.headphones_rounded),
+    _QuestDef('Fonem',      Icons.volume_up_rounded),
+  ];
+
+  Widget _buildQuestJourneyCard() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -230,69 +253,117 @@ class ProgressView extends GetView<ProgressController> {
               color: const Color(0xFF2977C7),
             ),
           ),
+          const SizedBox(height: 6),
+          Obx(() {
+            final todayIdx  = controller.todayQuestCycleIdx;
+            final isDone    = controller.isTodayQuestDone;
+            return Text(
+              todayIdx < 0
+                  ? 'Mulai petualangan untuk membuka quest'
+                  : isDone
+                      ? 'Quest hari ini selesai! ✓'
+                      : 'Quest hari ini: ${_kCycle[todayIdx].label}',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: todayIdx < 0
+                    ? Colors.grey[400]
+                    : isDone
+                        ? const Color(0xFF4CAF50)
+                        : const Color(0xFF2977C7),
+              ),
+            );
+          }),
           const SizedBox(height: 24),
-          Row(
-            children: List.generate(quests.length, (i) {
-              final q = quests[i];
-              final isLast = i == quests.length - 1;
-              return Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: q.done
-                                  ? const Color(0xFF3DAA4C)
-                                  : Colors.grey[200],
-                              shape: BoxShape.circle,
+          Obx(() {
+            final todayIdx = controller.todayQuestCycleIdx;
+            final isDone   = controller.isTodayQuestDone;
+
+            return Row(
+              children: List.generate(_kCycle.length, (i) {
+                final isToday  = i == todayIdx;
+                final isLast   = i == _kCycle.length - 1;
+                final def      = _kCycle[i];
+
+                final Color nodeColor;
+                final Color textColor;
+                final IconData nodeIcon;
+
+                if (isToday) {
+                  nodeColor = const Color(0xFF4CAF50);
+                  textColor = const Color(0xFF4CAF50);
+                  nodeIcon  = isDone ? Icons.check_rounded : def.icon;
+                } else {
+                  nodeColor = const Color(0xFFE0E0E0);
+                  textColor = Colors.grey.shade400;
+                  nodeIcon  = def.icon;
+                }
+
+                return Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: nodeColor,
+                                shape: BoxShape.circle,
+                                boxShadow: isToday
+                                    ? [
+                                        BoxShadow(
+                                          color: const Color(0xFF4CAF50)
+                                              .withValues(alpha: 0.35),
+                                          blurRadius: 10,
+                                          spreadRadius: 2,
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                              child: Icon(
+                                nodeIcon,
+                                color: isToday
+                                    ? Colors.white
+                                    : Colors.grey.shade500,
+                                size: 26,
+                              ),
                             ),
-                            child: Icon(
-                              q.done ? Icons.check_rounded : q.icon,
-                              color: q.done ? Colors.white : Colors.grey[500],
-                              size: 26,
+                            const SizedBox(height: 8),
+                            Text(
+                              def.label,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: textColor,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            q.label,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: q.done
-                                  ? const Color(0xFF3DAA4C)
-                                  : Colors.grey[500],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    if (!isLast)
-                      Container(
-                        width: 20,
-                        height: 2,
-                        color: Colors.grey[300],
-                        margin: const EdgeInsets.only(bottom: 28),
-                      ),
-                  ],
-                ),
-              );
-            }),
-          ),
+                      if (!isLast)
+                        Container(
+                          width: 18,
+                          height: 2,
+                          color: const Color(0xFFE0E0E0),
+                          margin: const EdgeInsets.only(bottom: 26),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+            );
+          }),
         ],
       ),
     );
   }
 }
 
-class _QuestStep {
+class _QuestDef {
   final String label;
   final IconData icon;
-  final bool done;
-  const _QuestStep(
-      {required this.label, required this.icon, required this.done});
+  const _QuestDef(this.label, this.icon);
 }
