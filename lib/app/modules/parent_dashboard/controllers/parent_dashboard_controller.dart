@@ -17,6 +17,11 @@ class ParentDashboardController extends GetxController {
   final rimaProgress = 0.obs; // %
   final fonemProgress = 0.obs; // %
   
+  // Derived Statistics Observables
+  final fokusAnak = 0.obs; // %
+  final kecepatanMembaca = 0.obs; // %
+  final pengenalanHuruf = 0.obs; // %
+  
   final kataSulit = <Map<String, dynamic>>[].obs;
   
   final currentCarouselIndex = 0.obs;
@@ -55,11 +60,27 @@ class ParentDashboardController extends GetxController {
               kosakataProgress.value = (stats['kosakata'] as num?)?.toInt() ?? 0;
               rimaProgress.value = (stats['rima'] as num?)?.toInt() ?? 0;
               fonemProgress.value = (stats['fonem'] as num?)?.toInt() ?? 0;
+              
+              final correct = (stats['totalCorrect'] as num?)?.toInt() ?? 0;
+              final wrong = (stats['totalWrong'] as num?)?.toInt() ?? 0;
+              final total = correct + wrong;
+              if (total > 0) {
+                fokusAnak.value = ((correct / total) * 100).toInt();
+              } else {
+                fokusAnak.value = 0;
+              }
+              
+              kecepatanMembaca.value = ((rimaProgress.value + sukuKataProgress.value) / 2).toInt();
+              pengenalanHuruf.value = fonemProgress.value;
             } else {
               sukuKataProgress.value = 0;
               kosakataProgress.value = 0;
               rimaProgress.value = 0;
               fonemProgress.value = 0;
+              
+              fokusAnak.value = 0;
+              kecepatanMembaca.value = 0;
+              pengenalanHuruf.value = 0;
             }
 
             if (childData.containsKey('kataSulit')) {
