@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -72,6 +74,7 @@ class LeaderboardUser {
 
 class HomeController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  StreamSubscription<User?>? _authSub;
 
   User? get currentUser => _auth.currentUser;
   
@@ -87,6 +90,9 @@ class HomeController extends GetxController {
     {'icon': 'assets/icons/flag.png', 'unlocked': false, 'type': 'end'},
     {'icon': 'assets/icons/puzzle.png', 'unlocked': false, 'type': 'puzzle'},
   ];
+
+  // Tutorial gate
+  final tutorialCompleted = false.obs;
 
   // Active Tab Index
   final tabIndex = 0.obs;
@@ -162,12 +168,37 @@ class HomeController extends GetxController {
     _initializeExercises();
     _initializeGames();
     _initializeLeaderboard();
+    // Tunggu sampai Firebase konfirmasi user (currentUser bisa null saat onInit)
+    _authSub = _auth.authStateChanges().listen((user) {
+      if (user != null) loadTutorialStatus();
+    });
   }
 
   @override
   void onClose() {
+    _authSub?.cancel();
     pageController.dispose();
     super.onClose();
+  }
+
+  Future<void> loadTutorialStatus() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return;
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
+      tutorialCompleted.value = doc.data()?['tutorialCompleted'] == true;
+    } catch (_) {}
+  }
+
+  void showTutorialRequired() {
+    Get.bottomSheet(
+      _TutorialRequiredSheet(),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
   }
 
   void logout() async {
@@ -667,6 +698,105 @@ class HomeController extends GetxController {
       child: Text(
         label,
         style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+      ),
+    );
+  }
+}
+
+// ─── Tutorial Required Bottom Sheet ──────────────────────────────────────────
+
+class _TutorialRequiredSheet extends StatelessWidget {
+  const _TutorialRequiredSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 40),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset('assets/icons/lippo_icon.png', width: 80),
+          const SizedBox(height: 16),
+          Text(
+            'Selesaikan Tutorial Dulu!',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF222222),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Belajar cara bermain bersama Lippo sebelum\nmemulai petualangan seru!',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: const Color(0xFF666666),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 28),
+          // Mulai Tutorial button
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFF338A3E),
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 5),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4CAF50),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(50),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(50),
+                  onTap: () {
+                    Get.back();
+                    Get.toNamed(Routes.TUTORIAL)?.then((_) {
+                      try {
+                        Get.find<HomeController>().loadTutorialStatus();
+                      } catch (_) {}
+                    });
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Center(
+                      child: Text(
+                        'Mulai Tutorial',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Nanti button
+          TextButton(
+            onPressed: Get.back,
+            child: Text(
+              'Nanti saja',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF9E9E9E),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

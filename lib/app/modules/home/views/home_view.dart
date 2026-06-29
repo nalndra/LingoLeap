@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -198,38 +200,53 @@ class _HomeTab extends GetView<HomeController> {
       shadowColor: const Color(0xFF338A3E),
       iconColor: const Color(0xFF4CAF50),
       buttonLabel: 'Mulai',
-      onTap: () => Get.toNamed(Routes.TUTORIAL),
+      onTap: () async {
+        await Get.toNamed(Routes.TUTORIAL);
+        controller.loadTutorialStatus();
+      },
     );
   }
 
   // ─── Petualangan Card ──────────────────────────────────────────────────────
 
   Widget _buildPetualanganCard() {
-    return _MenuCard(
-      title: 'Petualangan',
-      subtitle: 'Jelajahi peta dan\ndapatkan hadiah',
-      icon: Icons.map_outlined,
-      cardColor: const Color(0xFFE8621A),
-      shadowColor: const Color(0xFFBF4D10),
-      iconColor: const Color(0xFFE8621A),
-      buttonLabel: 'Jelajahi!',
-      onTap: () => Get.toNamed(Routes.QUEST),
-    );
+    return Obx(() {
+      final locked = !controller.tutorialCompleted.value;
+      return _MenuCard(
+        title: 'Petualangan',
+        subtitle: 'Jelajahi peta dan\ndapatkan hadiah',
+        icon: Icons.map_outlined,
+        cardColor: const Color(0xFFE8621A),
+        shadowColor: const Color(0xFFBF4D10),
+        iconColor: const Color(0xFFE8621A),
+        buttonLabel: 'Jelajahi!',
+        locked: locked,
+        onTap: locked
+            ? controller.showTutorialRequired
+            : () => Get.toNamed(Routes.PETUALANGAN),
+      );
+    });
   }
 
   // ─── Latihan Card ──────────────────────────────────────────────────────────
 
   Widget _buildLatihanCard() {
-    return _MenuCard(
-      title: 'Latihan',
-      subtitle: 'Latih kekuatan\npahlawan',
-      icon: Icons.sports_martial_arts_rounded,
-      cardColor: const Color(0xFF4A5CE8),
-      shadowColor: const Color(0xFF3040C0),
-      iconColor: const Color(0xFF4A5CE8),
-      buttonLabel: 'Latihan!',
-      onTap: () => Get.toNamed(Routes.LATIHAN),
-    );
+    return Obx(() {
+      final locked = !controller.tutorialCompleted.value;
+      return _MenuCard(
+        title: 'Latihan',
+        subtitle: 'Latih kekuatan\npahlawan',
+        icon: Icons.sports_martial_arts_rounded,
+        cardColor: const Color(0xFF4A5CE8),
+        shadowColor: const Color(0xFF3040C0),
+        iconColor: const Color(0xFF4A5CE8),
+        buttonLabel: 'Latihan!',
+        locked: locked,
+        onTap: locked
+            ? controller.showTutorialRequired
+            : () => Get.toNamed(Routes.LATIHAN),
+      );
+    });
   }
 }
 
@@ -245,6 +262,7 @@ class _MenuCard extends StatelessWidget {
     required this.iconColor,
     required this.buttonLabel,
     required this.onTap,
+    this.locked = false,
   });
 
   final String title;
@@ -255,10 +273,11 @@ class _MenuCard extends StatelessWidget {
   final Color iconColor;
   final String buttonLabel;
   final VoidCallback? onTap;
+  final bool locked;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final cardBody = Container(
       decoration: BoxDecoration(
         color: shadowColor,
         borderRadius: BorderRadius.circular(24),
@@ -276,7 +295,6 @@ class _MenuCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Icon in white rounded square
                 Container(
                   width: 80,
                   height: 80,
@@ -294,7 +312,6 @@ class _MenuCard extends StatelessWidget {
                   child: Icon(icon, color: iconColor, size: 42),
                 ),
                 const SizedBox(width: 18),
-                // Title + subtitle
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,8 +340,78 @@ class _MenuCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            // Button with 3D effect
             _buildButton(),
+          ],
+        ),
+      ),
+    );
+
+    if (!locked) return cardBody;
+
+    // ── Locked state: desaturate + blur + overlay + lock icon di tengah ───────
+    return GestureDetector(
+      onTap: onTap,
+      // ClipRRect membatasi BackdropFilter agar blur hanya berlaku di dalam card
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          children: [
+            // Card di-desaturasi jadi abu-abu
+            ColorFiltered(
+              colorFilter: const ColorFilter.matrix([
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0.2126, 0.7152, 0.0722, 0, 0,
+                0,      0,      0,      1, 0,
+              ]),
+              child: AbsorbPointer(child: cardBody),
+            ),
+            // Blur + dark overlay dalam satu BackdropFilter
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.28),
+                ),
+              ),
+            ),
+            // Lock icon + teks di tengah
+            Positioned.fill(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.50),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.lock_rounded,
+                        color: Colors.white,
+                        size: 36,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Selesaikan Tutorial',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

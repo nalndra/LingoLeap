@@ -30,11 +30,12 @@ class GameSukukataController extends GetxController {
     Color(0xFF00838F),
   ];
 
+  // Kata-kata dipilih agar tidak ambigu (huruf-hurufnya tidak bisa membentuk kata lain yang umum)
+  // Dihapus: IBU→UBI, API→IPA, GULA→LAGU, RUMAH→MARAH
   static const _questions = [
     // ── 3 huruf ──────────────────────────────────────────────────────────────
-    _LetterQuestion('IBU'),
-    _LetterQuestion('API'),
     _LetterQuestion('AJI'),
+    _LetterQuestion('DOA'),
 
     // ── 4 huruf ──────────────────────────────────────────────────────────────
     _LetterQuestion('BOLA'),
@@ -42,22 +43,28 @@ class GameSukukataController extends GetxController {
     _LetterQuestion('BAJU'),
     _LetterQuestion('TOPI'),
     _LetterQuestion('SAPI'),
-    _LetterQuestion('GULA'),
-    _LetterQuestion('ULAR'),
+    _LetterQuestion('DURI'),   // ULAR diganti: ULAR↔ALUR ambigu
     _LetterQuestion('BUDI'),
+    _LetterQuestion('MADU'),   // MATA diganti: MATA↔AMAT ambigu
+    _LetterQuestion('JARI'),
+    _LetterQuestion('KADO'),   // ROTI diganti: ROTI↔TRIO ambigu
+    _LetterQuestion('KOPI'),
+    _LetterQuestion('TAHU'),
+    _LetterQuestion('PAGI'),
 
     // ── 5 huruf ──────────────────────────────────────────────────────────────
-    _LetterQuestion('RUMAH'),
     _LetterQuestion('PINTU'),
     _LetterQuestion('BUNGA'),
     _LetterQuestion('TEMAN'),
     _LetterQuestion('PISAU'),
+    _LetterQuestion('KEBUN'),
+    _LetterQuestion('DAPUR'),
+    _LetterQuestion('BAMBU'),
 
     // ── 6 huruf ──────────────────────────────────────────────────────────────
-    _LetterQuestion('KARUNG'),
+    _LetterQuestion('PISANG'),   // KARUNG diganti: KARUNG↔KURANG ambigu
     _LetterQuestion('GARUDA'),
-    _LetterQuestion('MANGGA'),
-    _LetterQuestion('BAMBU'),
+    _LetterQuestion('KUCING'),   // MANGGA diganti: MANGGA↔GAMANG ambigu
   ];
 
   late final RxInt currentIndex;
@@ -66,26 +73,34 @@ class GameSukukataController extends GetxController {
   final List<String> _wrongWords = [];
   bool _isSaved = false;
 
-  // Shuffled display order of tiles (maps display-pos → original letter index)
   final shuffledTileIndices = <int>[].obs;
-
-  // slotTileIndex[i] = original tile index in slot i, -1 = empty
   final slotTileIndex = <int>[].obs;
-
-  // tileUsed[i] = whether original tile i has been placed
   final tileUsed = <bool>[].obs;
 
-  List<String> get letters =>
-      _questions[currentIndex.value].letters;
-  String get word => _questions[currentIndex.value].word;
-  int get totalQuestions => _questions.length;
-  double get progress => (currentIndex.value + 1) / totalQuestions;
+  bool _tutorialMode = false;
+  bool _adventureMode = false;
+  List<_LetterQuestion> _active = [];
+
+  List<String> get letters => _active[currentIndex.value].letters;
+  String get word => _active[currentIndex.value].word;
+  int get totalQuestions => _active.length;
+  double get progress => (currentIndex.value + 1) / _active.length;
 
   @override
   void onInit() {
     super.onInit();
-    final progress = Get.find<ChildProgressService>();
-    currentIndex = progress.sukuKataIndex.value.obs;
+    _tutorialMode = Get.arguments?['tutorialMode'] == true;
+    _adventureMode = Get.arguments?['adventureMode'] == true;
+    if (_tutorialMode) {
+      final pool = _questions.where((q) => q.word.length == 4).toList()
+        ..shuffle(Random());
+      _active = pool.take(2).toList();
+      currentIndex = 0.obs;
+    } else {
+      _active = List.of(_questions);
+      final svc = Get.find<ChildProgressService>();
+      currentIndex = svc.sukuKataIndex.value.obs;
+    }
     _loadQuestion();
   }
 
@@ -178,7 +193,7 @@ class GameSukukataController extends GetxController {
   }
 
   void _showResultSheet({required bool isCorrect}) {
-    final isLast = currentIndex.value == _questions.length - 1;
+    final isLast = currentIndex.value == _active.length - 1;
     final displayWord =
         word[0] + word.substring(1).toLowerCase();
 
@@ -190,7 +205,7 @@ class GameSukukataController extends GetxController {
           Get.back();
           if (isLast) {
             _saveProgress();
-            Get.back();
+            Get.back(result: (_tutorialMode || _adventureMode) ? true : null);
           } else {
             currentIndex.value++;
             _loadQuestion();

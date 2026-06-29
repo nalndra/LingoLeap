@@ -22,8 +22,8 @@ class GameKosakataController extends GetxController {
     // ── 3 suku kata – familiar ───────────────────────────────────────────────
     _WordQuestion('SEPATU',   ['SE', 'PA', 'TU']),
     _WordQuestion('CELANA',   ['CE', 'LA', 'NA']),
-    _WordQuestion('KELAPA',   ['KE', 'LA', 'PA']),
-    _WordQuestion('KEPALA',   ['KE', 'PA', 'LA']),
+    _WordQuestion('LEMARI',   ['LE', 'MA', 'RI']),   // KELAPA↔KEPALA ambigu (suku kata sama)
+    _WordQuestion('PETANI',   ['PE', 'TA', 'NI']),
     _WordQuestion('TELINGA',  ['TE', 'LI', 'NGA']),
     _WordQuestion('SEMANGKA', ['SE', 'MANG', 'KA']),
     _WordQuestion('BERMAIN',  ['BER', 'MA', 'IN']),
@@ -53,16 +53,30 @@ class GameKosakataController extends GetxController {
   final slotBubbleIndex = <int>[].obs;
   final bubbleUsed = <bool>[].obs;
 
-  List<String> get syllables => _questions[currentIndex.value].syllables;
-  String get word => _questions[currentIndex.value].word;
-  int get totalQuestions => _questions.length;
-  double get progress => (currentIndex.value + 1) / totalQuestions;
+  bool _tutorialMode = false;
+  bool _adventureMode = false;
+  List<_WordQuestion> _active = [];
+
+  List<String> get syllables => _active[currentIndex.value].syllables;
+  String get word => _active[currentIndex.value].word;
+  int get totalQuestions => _active.length;
+  double get progress => (currentIndex.value + 1) / _active.length;
 
   @override
   void onInit() {
     super.onInit();
-    final progress = Get.find<ChildProgressService>();
-    currentIndex = progress.kosakataIndex.value.obs;
+    _tutorialMode = Get.arguments?['tutorialMode'] == true;
+    _adventureMode = Get.arguments?['adventureMode'] == true;
+    if (_tutorialMode) {
+      final pool = _questions.where((q) => q.syllables.length == 3).toList()
+        ..shuffle(Random());
+      _active = pool.take(2).toList();
+      currentIndex = 0.obs;
+    } else {
+      _active = List.of(_questions);
+      final svc = Get.find<ChildProgressService>();
+      currentIndex = svc.kosakataIndex.value.obs;
+    }
     _loadQuestion();
   }
 
@@ -93,7 +107,7 @@ class GameKosakataController extends GetxController {
   }
 
   void _loadQuestion() {
-    final count = _questions[currentIndex.value].syllables.length;
+    final count = _active[currentIndex.value].syllables.length;
     final indices = List.generate(count, (i) => i)..shuffle(Random());
     shuffledBubbleIndices.value = indices;
     slotBubbleIndex.value = List.filled(count, -1);
@@ -155,7 +169,7 @@ class GameKosakataController extends GetxController {
   }
 
   void _showResultSheet({required bool isCorrect}) {
-    final isLast = currentIndex.value == _questions.length - 1;
+    final isLast = currentIndex.value == _active.length - 1;
     final correctWord =
         word[0] + word.substring(1).toLowerCase(); // "Sepatu"
 
@@ -167,7 +181,7 @@ class GameKosakataController extends GetxController {
           Get.back();
           if (isLast) {
             _saveProgress();
-            Get.back(); // kembali ke latihan
+            Get.back(result: (_tutorialMode || _adventureMode) ? true : null);
           } else {
             currentIndex.value++;
             _loadQuestion();

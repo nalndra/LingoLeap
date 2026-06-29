@@ -32,6 +32,8 @@ import '../modules/parent_register/bindings/parent_register_binding.dart';
 import '../modules/parent_register/views/parent_register_view.dart';
 import '../modules/parent_settings/bindings/parent_settings_binding.dart';
 import '../modules/parent_settings/views/parent_settings_view.dart';
+import '../modules/petualangan/bindings/petualangan_binding.dart';
+import '../modules/petualangan/views/petualangan_view.dart';
 import '../modules/pin/bindings/pin_binding.dart';
 import '../modules/pin/views/pin_confirm_view.dart';
 import '../modules/pin/views/pin_login_view.dart';
@@ -208,6 +210,11 @@ class AppPages {
       page: () => const EditProfileView(),
       binding: EditProfileBinding(),
       transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: _Paths.PETUALANGAN,
+      page: () => const PetualanganView(),
+      binding: PetualanganBinding(),
     ),
   ];
 }

@@ -96,8 +96,11 @@ class GameFonemController extends GetxController {
   final List<String> _wrongWords = [];
   bool _isSaved = false;
 
-  // Soal tidak diacak agar fitur resume dari progress terakhir (index) konsisten
-  late final List<_FonemQuestion> _shuffled;
+  // Normal mode: tidak diacak agar resume index konsisten
+  // Tutorial/adventure mode: diacak, ambil 2
+  List<_FonemQuestion> _shuffled = [];
+  bool _tutorialMode = false;
+  bool _adventureMode = false;
 
   _FonemQuestion get _current => _shuffled[currentIndex.value];
   String get word => _current.word;
@@ -109,11 +112,17 @@ class GameFonemController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final progress = Get.find<ChildProgressService>();
-    currentIndex = progress.fonemIndex.value.obs;
-    
+    _tutorialMode = Get.arguments?['tutorialMode'] == true;
+    _adventureMode = Get.arguments?['adventureMode'] == true;
+    if (_tutorialMode) {
+      _shuffled = (List.of(_questions)..shuffle(Random())).take(2).toList();
+      currentIndex = 0.obs;
+    } else {
+      _shuffled = List.of(_questions);
+      final svc = Get.find<ChildProgressService>();
+      currentIndex = svc.fonemIndex.value.obs;
+    }
     _initTts();
-    _shuffled = List.of(_questions);
     _loadQuestion();
   }
 
@@ -127,7 +136,6 @@ class GameFonemController extends GetxController {
   void _saveProgress() {
     if (_isSaved) return;
     _isSaved = true;
-    
     if (_sessionPlayedCount > 0) {
       try {
         Get.find<ChildProgressService>().saveGameResult(
@@ -144,6 +152,8 @@ class GameFonemController extends GetxController {
     }
   }
 
+  String? _idLang;
+
   Future<void> _initTts() async {
     try {
       _tts.setCompletionHandler(() => isSpeaking.value = false);
@@ -151,17 +161,32 @@ class GameFonemController extends GetxController {
       await _tts.setVolume(1.0);
       await _tts.setPitch(1.0);
       await _tts.setSpeechRate(0.45);
+      _idLang = await _resolveIdLang();
+    } catch (_) {}
+  }
 
-      // Coba berbagai kode bahasa Indonesia (beberapa perangkat pakai 'in-ID')
-      for (final lang in ['id-ID', 'in-ID', 'id', 'in']) {
-        try {
-          final result = await _tts.setLanguage(lang);
-          if (result == 1) break;
-        } catch (_) {
-          continue;
+  Future<String?> _resolveIdLang() async {
+    // Cek voices yang tersedia, cari yang Indonesian
+    try {
+      final voices = await _tts.getVoices as List?;
+      if (voices != null) {
+        for (final v in voices) {
+          final locale = ((v as Map)['locale'] ?? '').toString().toLowerCase();
+          if (locale.startsWith('id') || locale == 'in-id') {
+            return (v['locale'] as String?) ?? 'id-ID';
+          }
         }
       }
     } catch (_) {}
+
+    // Fallback: coba satu per satu kode bahasa
+    for (final lang in ['id-ID', 'in-ID', 'id', 'in']) {
+      try {
+        final ok = await _tts.setLanguage(lang);
+        if (ok == 1) return lang;
+      } catch (_) {}
+    }
+    return null;
   }
 
   void _loadQuestion() {
@@ -186,9 +211,13 @@ class GameFonemController extends GetxController {
       isSpeaking.value = true;
       hasPlayed.value = true;
 
-      // Ganjil = normal, genap = lambat — hidden feature
       final isNormal = _tapCount.value % 2 == 1;
       await _tts.setSpeechRate(isNormal ? 0.65 : 0.3);
+
+      // Set bahasa setiap kali sebelum speak — diperlukan di beberapa platform
+      if (_idLang != null) {
+        await _tts.setLanguage(_idLang!);
+      }
       await _tts.speak(word);
     } catch (_) {
       isSpeaking.value = false;
@@ -216,10 +245,10 @@ class GameFonemController extends GetxController {
         word: word,
         positionLabel: positionLabel,
         onNext: () {
-          Get.back();
+          Get.back(); // tutup bottom sheet
           if (isLast) {
             _saveProgress();
-            Get.back();
+            Get.back(result: (_tutorialMode || _adventureMode) ? true : null);
           } else {
             currentIndex.value++;
             _loadQuestion();
