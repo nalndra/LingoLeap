@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
+import '../../../services/child_progress_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class _FonemQuestion {
@@ -85,13 +86,17 @@ class GameFonemController extends GetxController {
   static const _alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
   final _tts = FlutterTts();
-  final currentIndex = 0.obs;
+  late final RxInt currentIndex;
   final isSpeaking = false.obs;
   final hasPlayed = false.obs;
   final _tapCount = 0.obs;  // internal — hidden feature
   final shuffledOptions = <String>[].obs;
+  int _correctCount = 0;
+  int _sessionPlayedCount = 0;
+  final List<String> _wrongWords = [];
+  bool _isSaved = false;
 
-  // Soal diacak saat game dimulai agar tidak ada pola
+  // Soal tidak diacak agar fitur resume dari progress terakhir (index) konsisten
   late final List<_FonemQuestion> _shuffled;
 
   _FonemQuestion get _current => _shuffled[currentIndex.value];
@@ -104,16 +109,39 @@ class GameFonemController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Acak urutan soal sekali saat game mulai
-    _shuffled = List.of(_questions)..shuffle(Random());
+    final progress = Get.find<ChildProgressService>();
+    currentIndex = progress.fonemIndex.value.obs;
+    
     _initTts();
+    _shuffled = List.of(_questions);
     _loadQuestion();
   }
 
   @override
   void onClose() {
+    _saveProgress();
     try { _tts.stop(); } catch (_) {}
     super.onClose();
+  }
+
+  void _saveProgress() {
+    if (_isSaved) return;
+    _isSaved = true;
+    
+    if (_sessionPlayedCount > 0) {
+      try {
+        Get.find<ChildProgressService>().saveGameResult(
+          gameName: 'fonem',
+          sessionCorrectCount: _correctCount,
+          totalGameQuestions: _shuffled.length,
+          sessionPlayedCount: _sessionPlayedCount,
+          lastIndex: currentIndex.value,
+          wrongWords: _wrongWords,
+        );
+      } catch (e) {
+        debugPrint('Error saving progress: $e');
+      }
+    }
   }
 
   Future<void> _initTts() async {
@@ -169,6 +197,12 @@ class GameFonemController extends GetxController {
 
   void selectOption(String letter) {
     final isCorrect = letter == correctLetter;
+    _sessionPlayedCount++;
+    if (isCorrect) {
+      _correctCount++;
+    } else {
+      _wrongWords.add(word);
+    }
     _showResultSheet(isCorrect: isCorrect);
   }
 
@@ -184,6 +218,7 @@ class GameFonemController extends GetxController {
         onNext: () {
           Get.back();
           if (isLast) {
+            _saveProgress();
             Get.back();
           } else {
             currentIndex.value++;

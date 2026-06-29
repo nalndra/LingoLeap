@@ -97,69 +97,45 @@ class ParentDashboardView extends GetView<ParentDashboardController> {
                   child: Column(
                     children: [
                       // Dots Indicator
-                      Row(
+                      Obx(() => Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildDot(true),
-                          _buildDot(false),
-                          _buildDot(false),
-                          _buildDot(false),
+                          _buildDot(controller.currentCarouselIndex.value == 0),
+                          _buildDot(controller.currentCarouselIndex.value == 1),
+                          _buildDot(controller.currentCarouselIndex.value == 2),
+                          _buildDot(controller.currentCarouselIndex.value == 3),
                         ],
-                      ),
+                      )),
                       const SizedBox(height: 16),
-                      Text(
-                        'Progress Belajar Anak',
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF005A9C),
-                        ),
-                      ),
-                      Text(
-                        'Suku Kata',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF005A9C),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Circular Progress
+                      // Carousel using PageView
                       SizedBox(
-                        width: 140,
-                        height: 140,
-                        child: Stack(
-                          alignment: Alignment.center,
+                        height: 250,
+                        child: PageView(
+                          onPageChanged: (index) {
+                            controller.currentCarouselIndex.value = index;
+                          },
                           children: [
-                            SizedBox(
-                              width: 140,
-                              height: 140,
-                              child: CircularProgressIndicator(
-                                value: controller.sukuKataProgress.value / 100,
-                                strokeWidth: 24,
-                                backgroundColor: const Color(0xFF005A9C).withOpacity(0.15),
-                                color: const Color(0xFF005A9C),
-                                strokeCap: StrokeCap.round, // Not officially supported out-of-box for circular, but good to specify
-                              ),
+                            _buildProgressSlide(
+                              title: 'Suku Kata',
+                              progress: controller.sukuKataProgress.value,
+                              color: const Color(0xFF2977C7),
                             ),
-                            Text(
-                              '${controller.sukuKataProgress.value}%',
-                              style: GoogleFonts.poppins(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF005A9C),
-                              ),
+                            _buildProgressSlide(
+                              title: 'Kosakata',
+                              progress: controller.kosakataProgress.value,
+                              color: const Color(0xFF4CAF50),
+                            ),
+                            _buildProgressSlide(
+                              title: 'Rima',
+                              progress: controller.rimaProgress.value,
+                              color: const Color(0xFF7C3AED),
+                            ),
+                            _buildProgressSlide(
+                              title: 'Fonem',
+                              progress: controller.fonemProgress.value,
+                              color: const Color(0xFFE8A020),
                             ),
                           ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Geser untuk melihat yang lainya!',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey[500],
                         ),
                       ),
                     ],
@@ -193,11 +169,13 @@ class ParentDashboardView extends GetView<ParentDashboardController> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      _buildLinearStat('Fokus Anak', controller.fokusAnak.value, const Color(0xFF005A9C)),
+                      _buildLinearStat('Suku Kata (Pemahaman)', controller.sukuKataProgress.value, const Color(0xFF2977C7)),
                       const SizedBox(height: 16),
-                      _buildLinearStat('Kecepatan Membaca', controller.kecepatanMembaca.value, const Color(0xFFF07B26)),
+                      _buildLinearStat('Kosakata (Fokus)', controller.kosakataProgress.value, const Color(0xFF4CAF50)),
                       const SizedBox(height: 16),
-                      _buildLinearStat('Pengenalan Huruf', controller.pengenalanHuruf.value, const Color(0xFF3DAA4C)),
+                      _buildLinearStat('Rima (Kecepatan)', controller.rimaProgress.value, const Color(0xFF7C3AED)),
+                      const SizedBox(height: 16),
+                      _buildLinearStat('Fonem (Pengenalan)', controller.fonemProgress.value, const Color(0xFFE8A020)),
                     ],
                   ),
                 ),
@@ -364,6 +342,68 @@ class ParentDashboardView extends GetView<ParentDashboardController> {
             color: const Color(0xFFEB4B4B),
             fontWeight: FontWeight.bold,
             fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProgressSlide({required String title, required int progress, required Color color}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Progress Belajar Anak',
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF005A9C),
+          ),
+        ),
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 20),
+        SizedBox(
+          width: 120,
+          height: 120,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 120,
+                height: 120,
+                child: CircularProgressIndicator(
+                  value: progress / 100,
+                  strokeWidth: 20,
+                  backgroundColor: color.withOpacity(0.15),
+                  color: color,
+                  strokeCap: StrokeCap.round,
+                ),
+              ),
+              Text(
+                '$progress%',
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'Geser untuk melihat yang lainya!',
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[500],
           ),
         ),
       ],

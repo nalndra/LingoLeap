@@ -41,20 +41,21 @@ class ParentSettingsView extends GetView<ParentSettingsController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 24),
                   // ─── Header ───
                   Row(
                     children: [
                       // Back button — green circle like mockup
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: 46,
+                        height: 46,
                         decoration: const BoxDecoration(
-                          color: _green,
+                          color: Color(0xFF005DA7),
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
                           padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Colors.white),
+                          icon: Image.asset('assets/icons/back.png', width: 22, height: 22, color: Colors.white),
                           onPressed: () {
                             if (Get.previousRoute.isEmpty) {
                               Get.offNamed('/parent-dashboard');
@@ -66,94 +67,107 @@ class ParentSettingsView extends GetView<ParentSettingsController> {
                       ),
                       Expanded(
                         child: Center(
-                          child: Text(
-                            'Pengaturan',
-                            style: GoogleFonts.poppins(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: _green,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'Pengaturan',
+                              style: GoogleFonts.poppins(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                color: _green,
+                                height: 31.2 / 24,
+                                letterSpacing: -0.6,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 40), // Balance the back button
+                      const SizedBox(width: 46), // Balance the back button
                     ],
                   ),
                   const SizedBox(height: 24),
 
                   // ─── Profile Card (Green Gradient) ───
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                  GestureDetector(
+                    onTap: () async {
+                      final newName = await Get.toNamed('/edit-profile', arguments: {'isParent': true});
+                      if (newName != null && newName is String) {
+                        controller.parentName.value = newName;
+                      }
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF4CAF50).withOpacity(0.3),
+                            offset: const Offset(0, 6),
+                            blurRadius: 16,
+                          ),
+                        ],
                       ),
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF4CAF50).withOpacity(0.3),
-                          offset: const Offset(0, 6),
-                          blurRadius: 16,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // Avatar — white bg with green icon
-                        Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(18),
+                      child: Row(
+                        children: [
+                          // Avatar — white bg with green icon
+                          Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.person, color: Color(0xFF4CAF50), size: 34),
+                            ),
                           ),
-                          child: const Center(
-                            child: Icon(Icons.person, color: Color(0xFF4CAF50), size: 34),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                controller.parentName.value,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              Text(
-                                controller.parentEmail.value,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.white.withOpacity(0.85),
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Text(
-                                    'Edit Profil',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white.withOpacity(0.9),
-                                    ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  controller.parentName.value,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
-                                  const SizedBox(width: 4),
-                                  Icon(Icons.edit, size: 14, color: Colors.white.withOpacity(0.9)),
-                                ],
-                              ),
-                            ],
+                                ),
+                                Text(
+                                  controller.parentEmail.value,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.white.withOpacity(0.85),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Edit Profil',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white.withOpacity(0.9),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(Icons.edit, size: 14, color: Colors.white.withOpacity(0.9)),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -288,23 +302,29 @@ class ParentSettingsView extends GetView<ParentSettingsController> {
                   SizedBox(
                     width: double.infinity,
                     height: 56,
-                    child: ElevatedButton.icon(
+                    child: ElevatedButton(
                       onPressed: controller.logout,
-                      icon: const Icon(Icons.logout_rounded, color: Colors.white),
-                      label: Text(
-                        'Log Out',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _red,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(28),
                         ),
                         elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Log Out',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.logout_rounded, color: Colors.white),
+                        ],
                       ),
                     ),
                   ),
@@ -430,13 +450,13 @@ class ParentSettingsView extends GetView<ParentSettingsController> {
                 child: iconAsset != null
                     ? Image.asset(
                         iconAsset,
-                        width: 22,
-                        height: 22,
+                        width: 30,
+                        height: 30,
                         color: Colors.white,
                         errorBuilder: (context, error, stackTrace) =>
-                            Icon(Icons.star, size: 22, color: Colors.white),
+                            Icon(Icons.star, size: 30, color: Colors.white),
                       )
-                    : Icon(icon, size: 22, color: Colors.white),
+                    : Icon(icon, size: 30, color: Colors.white),
               ),
             ),
             const SizedBox(width: 16),

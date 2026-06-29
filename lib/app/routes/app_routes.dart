@@ -29,6 +29,7 @@ abstract class Routes {
   static const GAME_KOSAKATA = _Paths.GAME_KOSAKATA;
   static const GAME_FONEM = _Paths.GAME_FONEM;
   static const GAME_RIMA = _Paths.GAME_RIMA;
+  static const EDIT_PROFILE = _Paths.EDIT_PROFILE;
 }
 
 abstract class _Paths {
@@ -59,4 +60,5 @@ abstract class _Paths {
   static const GAME_KOSAKATA = '/game-kosakata';
   static const GAME_FONEM = '/game-fonem';
   static const GAME_RIMA = '/game-rima';
+  static const EDIT_PROFILE = '/edit-profile';
 }

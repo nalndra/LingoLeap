@@ -12,17 +12,14 @@ class ParentDashboardController extends GetxController {
   final isLoading = true.obs;
 
   // Real-time Progress Observables
-  final sukuKataProgress = 85.obs; // %
-  final fokusAnak = 50.obs; // %
-  final kecepatanMembaca = 76.obs; // %
-  final pengenalanHuruf = 85.obs; // %
+  final sukuKataProgress = 0.obs; // %
+  final kosakataProgress = 0.obs; // %
+  final rimaProgress = 0.obs; // %
+  final fonemProgress = 0.obs; // %
   
-  final kataSulit = <Map<String, dynamic>>[
-    {'word': 'Strategi', 'count': 2},
-    {'word': 'Mengapa', 'count': 4},
-    {'word': 'Palu', 'count': 3},
-    {'word': 'Bagi', 'count': 1},
-  ].obs;
+  final kataSulit = <Map<String, dynamic>>[].obs;
+  
+  final currentCarouselIndex = 0.obs;
 
   @override
   void onInit() {
@@ -46,18 +43,29 @@ class ParentDashboardController extends GetxController {
             .listen((querySnapshot) {
           if (querySnapshot.docs.isNotEmpty) {
             final childData = querySnapshot.docs.first.data();
+            print('--- PARENT DASHBOARD RAW DATA ---');
+            print(childData);
+            print('---------------------------------');
             children.value = querySnapshot.docs.map((doc) => doc.data()).toList();
             
-            // Perbarui statistik secara realtime jika ada data di database (fallback ke default jika tidak ada)
+            // Perbarui statistik secara realtime jika ada data di database
             if (childData.containsKey('stats')) {
-              final stats = childData['stats'];
-              sukuKataProgress.value = stats['sukuKata'] ?? 85;
-              fokusAnak.value = stats['fokus'] ?? 50;
-              kecepatanMembaca.value = stats['kecepatan'] ?? 76;
-              pengenalanHuruf.value = stats['pengenalanHuruf'] ?? 85;
+              final stats = childData['stats'] as Map<String, dynamic>;
+              sukuKataProgress.value = (stats['sukuKata'] as num?)?.toInt() ?? 0;
+              kosakataProgress.value = (stats['kosakata'] as num?)?.toInt() ?? 0;
+              rimaProgress.value = (stats['rima'] as num?)?.toInt() ?? 0;
+              fonemProgress.value = (stats['fonem'] as num?)?.toInt() ?? 0;
+            } else {
+              sukuKataProgress.value = 0;
+              kosakataProgress.value = 0;
+              rimaProgress.value = 0;
+              fonemProgress.value = 0;
             }
+
             if (childData.containsKey('kataSulit')) {
               kataSulit.value = List<Map<String, dynamic>>.from(childData['kataSulit']);
+            } else {
+              kataSulit.clear();
             }
           }
         });

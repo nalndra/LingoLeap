@@ -24,38 +24,44 @@ class PremiumView extends GetView<PremiumController> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
               children: [
+                const SizedBox(height: 24),
                 // ─── Header ───
                 Row(
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 46,
+                      height: 46,
                       decoration: const BoxDecoration(
-                        color: _green,
+                        color: Color(0xFF005DA7),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
                         padding: EdgeInsets.zero,
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Colors.white),
+                        icon: Image.asset('assets/icons/back.png', width: 22, height: 22, color: Colors.white),
                         onPressed: () => Get.back(),
                       ),
                     ),
                     Expanded(
                       child: Center(
-                        child: Text(
-                          'Langganan Premium',
-                          style: GoogleFonts.poppins(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
-                            color: _green,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'Langganan Premium',
+                            style: GoogleFonts.poppins(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              color: _green,
+                              height: 31.2 / 24,
+                              letterSpacing: -0.6,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 40),
+                    const SizedBox(width: 46),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
                 // ─── Plan 1: Ksatria Pemula ───
                 _buildPlanCard(

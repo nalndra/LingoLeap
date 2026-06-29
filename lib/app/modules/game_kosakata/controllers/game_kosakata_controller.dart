@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../services/child_progress_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class _WordQuestion {
@@ -43,7 +44,11 @@ class GameKosakataController extends GetxController {
     _WordQuestion('BERSEMANGAT', ['BER', 'SE', 'MA', 'NGAT']),
   ];
 
-  final currentIndex = 0.obs;
+  late final RxInt currentIndex;
+  int _correctCount = 0;
+  int _sessionPlayedCount = 0;
+  final List<String> _wrongWords = [];
+  bool _isSaved = false;
   final shuffledBubbleIndices = <int>[].obs;
   final slotBubbleIndex = <int>[].obs;
   final bubbleUsed = <bool>[].obs;
@@ -56,7 +61,35 @@ class GameKosakataController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    final progress = Get.find<ChildProgressService>();
+    currentIndex = progress.kosakataIndex.value.obs;
     _loadQuestion();
+  }
+
+  void _saveProgress() {
+    if (_isSaved) return;
+    _isSaved = true;
+    
+    if (_sessionPlayedCount > 0) {
+      try {
+        Get.find<ChildProgressService>().saveGameResult(
+          gameName: 'kosakata',
+          sessionCorrectCount: _correctCount,
+          totalGameQuestions: _questions.length,
+          sessionPlayedCount: _sessionPlayedCount,
+          lastIndex: currentIndex.value,
+          wrongWords: _wrongWords,
+        );
+      } catch (e) {
+        debugPrint('Error saving progress: $e');
+      }
+    }
+  }
+
+  @override
+  void onClose() {
+    _saveProgress();
+    super.onClose();
   }
 
   void _loadQuestion() {
@@ -111,9 +144,12 @@ class GameKosakataController extends GetxController {
     }
 
     final answer = slotBubbleIndex.map((i) => syllables[i]).join('');
+    _sessionPlayedCount++;
     if (answer == word) {
+      _correctCount++;
       _showResultSheet(isCorrect: true);
     } else {
+      _wrongWords.add(word);
       _showResultSheet(isCorrect: false);
     }
   }
@@ -130,6 +166,7 @@ class GameKosakataController extends GetxController {
         onNext: () {
           Get.back();
           if (isLast) {
+            _saveProgress();
             Get.back(); // kembali ke latihan
           } else {
             currentIndex.value++;

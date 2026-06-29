@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../services/child_progress_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class _LetterQuestion {
@@ -59,7 +60,11 @@ class GameSukukataController extends GetxController {
     _LetterQuestion('BAMBU'),
   ];
 
-  final currentIndex = 0.obs;
+  late final RxInt currentIndex;
+  int _correctCount = 0;
+  int _sessionPlayedCount = 0;
+  final List<String> _wrongWords = [];
+  bool _isSaved = false;
 
   // Shuffled display order of tiles (maps display-pos → original letter index)
   final shuffledTileIndices = <int>[].obs;
@@ -79,7 +84,35 @@ class GameSukukataController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    final progress = Get.find<ChildProgressService>();
+    currentIndex = progress.sukuKataIndex.value.obs;
     _loadQuestion();
+  }
+
+  void _saveProgress() {
+    if (_isSaved) return;
+    _isSaved = true;
+    
+    if (_sessionPlayedCount > 0) {
+      try {
+        Get.find<ChildProgressService>().saveGameResult(
+          gameName: 'sukuKata',
+          sessionCorrectCount: _correctCount,
+          totalGameQuestions: _questions.length,
+          sessionPlayedCount: _sessionPlayedCount,
+          lastIndex: currentIndex.value,
+          wrongWords: _wrongWords,
+        );
+      } catch (e) {
+        debugPrint('Error saving progress: $e');
+      }
+    }
+  }
+
+  @override
+  void onClose() {
+    _saveProgress();
+    super.onClose();
   }
 
   void _loadQuestion() {
@@ -135,6 +168,12 @@ class GameSukukataController extends GetxController {
 
     final answer = slotTileIndex.map((i) => letters[i]).join('');
     final isCorrect = answer == word;
+    _sessionPlayedCount++;
+    if (isCorrect) {
+      _correctCount++;
+    } else {
+      _wrongWords.add(word);
+    }
     _showResultSheet(isCorrect: isCorrect);
   }
 
@@ -150,6 +189,7 @@ class GameSukukataController extends GetxController {
         onNext: () {
           Get.back();
           if (isLast) {
+            _saveProgress();
             Get.back();
           } else {
             currentIndex.value++;

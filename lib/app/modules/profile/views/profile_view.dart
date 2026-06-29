@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../home/controllers/home_controller.dart';
 import '../controllers/profile_controller.dart';
+import '../../../services/child_progress_service.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -107,12 +108,38 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          _home.currentUser?.displayName ?? 'Pahlawan',
+        Obx(() => Text(
+          _home.childName.value.isEmpty ? 'Pahlawan' : _home.childName.value,
           style: GoogleFonts.outfit(
             fontSize: 30,
             fontWeight: FontWeight.w900,
             color: const Color(0xFF2977C7),
+          ),
+        )),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: () async {
+            final newName = await Get.toNamed('/edit-profile', arguments: {'isParent': true});
+            if (newName != null && newName is String) {
+              Get.find<ChildProgressService>().childName.value = newName;
+            }
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Edit Profil',
+                style: GoogleFonts.outfit(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF2977C7),
+                  decoration: TextDecoration.underline,
+                  decorationColor: const Color(0xFF2977C7),
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.edit, size: 14, color: Color(0xFF2977C7)),
+            ],
           ),
         ),
       ],

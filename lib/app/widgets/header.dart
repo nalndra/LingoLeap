@@ -30,15 +30,15 @@ class AppHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _home.currentUser?.displayName ?? 'Pahlawan',
+              Obx(() => Text(
+                _home.childName.value.isEmpty ? 'Pahlawan' : _home.childName.value,
                 style: GoogleFonts.poppins(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF2977C7),
                 ),
                 overflow: TextOverflow.ellipsis,
-              ),
+              )),
               const SizedBox(height: 2),
               Row(
                 children: [

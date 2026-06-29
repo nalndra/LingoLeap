@@ -28,13 +28,15 @@ class PinConfirmView extends GetView<PinController> {
                   Row(
                     children: [
                       Container(
+                        width: 46,
+                        height: 46,
                         decoration: const BoxDecoration(
                           color: Color(0xFF005DA7),
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
                           padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 22),
+                          icon: Image.asset('assets/icons/back.png', width: 22, height: 22, color: Colors.white),
                           onPressed: () {
                             controller.currentInput.value = '';
                             Get.back();
@@ -42,17 +44,23 @@ class PinConfirmView extends GetView<PinController> {
                         ),
                       ),
                       Expanded(
-                        child: Text(
-                          'Konfirmasi PIN',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              'Konfirmasi PIN',
+                              style: GoogleFonts.poppins(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                height: 31.2 / 24,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 48), // To balance the back button
+                      const SizedBox(width: 46),
                     ],
                   ),
                   const SizedBox(height: 24),

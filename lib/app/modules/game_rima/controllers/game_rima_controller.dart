@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../services/child_progress_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class _RimaQuestion {
@@ -42,11 +43,15 @@ class GameRimaController extends GetxController {
     _RimaQuestion('Tangan', '✋', Color(0xFFE8621A), ['Jangan',  'Pisang',  'Bintang']),
   ];
 
-  final currentIndex       = 0.obs;
+  late final RxInt currentIndex;
   final selectedOptionIdx  = (-1).obs;
   final isLoading          = true.obs;
   final shuffledOptions    = <String>[].obs;
   final _correctDisplayIdx = 0.obs;
+  int _correctCount = 0;
+  int _sessionPlayedCount = 0;
+  final List<String> _wrongWords = [];
+  bool _isSaved = false;
 
   late final List<_RimaQuestion> _shuffled;
 
@@ -61,8 +66,37 @@ class GameRimaController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _shuffled = List.of(_questions)..shuffle(Random());
+    final progress = Get.find<ChildProgressService>();
+    currentIndex = progress.rimaIndex.value.obs;
+    
+    _shuffled = List.of(_questions);
     _loadQuestion();
+  }
+
+  void _saveProgress() {
+    if (_isSaved) return;
+    _isSaved = true;
+    
+    if (_sessionPlayedCount > 0) {
+      try {
+        Get.find<ChildProgressService>().saveGameResult(
+          gameName: 'rima',
+          sessionCorrectCount: _correctCount,
+          totalGameQuestions: _shuffled.length,
+          sessionPlayedCount: _sessionPlayedCount,
+          lastIndex: currentIndex.value,
+          wrongWords: _wrongWords,
+        );
+      } catch (e) {
+        debugPrint('Error saving progress: $e');
+      }
+    }
+  }
+
+  @override
+  void onClose() {
+    _saveProgress();
+    super.onClose();
   }
 
   Future<void> _loadQuestion() async {
@@ -100,7 +134,15 @@ class GameRimaController extends GetxController {
       );
       return;
     }
-    _showResultSheet(isCorrect: selectedOptionIdx.value == _correctDisplayIdx.value);
+    
+    _sessionPlayedCount++;
+    final isCorrect = selectedOptionIdx.value == _correctDisplayIdx.value;
+    if (isCorrect) {
+      _correctCount++;
+    } else {
+      _wrongWords.add(word);
+    }
+    _showResultSheet(isCorrect: isCorrect);
   }
 
   void _showResultSheet({required bool isCorrect}) {
@@ -115,6 +157,7 @@ class GameRimaController extends GetxController {
         onNext: () {
           Get.back();
           if (isLast) {
+            _saveProgress();
             Get.back();
           } else {
             currentIndex.value++;

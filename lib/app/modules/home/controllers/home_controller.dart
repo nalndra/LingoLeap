@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../routes/app_pages.dart';
 import '../../../services/pin_service.dart';
+import '../../../services/child_progress_service.dart';
 
 class QuizQuestion {
   final String questionText;
@@ -90,12 +91,15 @@ class HomeController extends GetxController {
   // Active Tab Index
   final tabIndex = 0.obs;
 
-  // User Stats matching mockups
-  final hearts = 5.obs; // 5/5
-  final streak = 5.obs; // 5
-  final xp = 100.obs;   // 100 XP
-  final gems = 150.obs;  // 150 Gems
-  final level = 10.obs;  // Lvl 10
+  // User Stats matching mockups (now backed by ChildProgressService)
+  ChildProgressService get _progress => Get.find<ChildProgressService>();
+
+  RxString get childName => _progress.childName;
+  RxInt get hearts => _progress.hearts;
+  RxInt get streak => _progress.streak;
+  RxInt get xp => _progress.xp;
+  RxInt get gems => _progress.gems;
+  RxInt get level => _progress.level;
 
   // Rank helpers — call inside Obx() so they stay reactive
   String get rankName {
@@ -151,6 +155,10 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     pageController = PageController(initialPage: tabIndex.value);
+    
+    // Load data real dari Firestore
+    _progress.loadChildStats();
+
     _initializeExercises();
     _initializeGames();
     _initializeLeaderboard();
@@ -165,6 +173,7 @@ class HomeController extends GetxController {
   void logout() async {
     try {
       Get.find<PinService>().clearLocalPin();
+      _progress.clearStats();
     } catch (_) {}
     await _auth.signOut();
     Get.offAllNamed(Routes.LOGIN);
@@ -390,7 +399,7 @@ class HomeController extends GetxController {
       isAnswerCorrect.value = false;
       quizErrorsCount.value++;
       // Deduct heart
-      hearts.value = (hearts.value - 1).clamp(0, 5);
+      _progress.syncBasicStats(newHearts: (hearts.value - 1).clamp(0, 5));
     }
   }
 
@@ -426,8 +435,15 @@ class HomeController extends GetxController {
         earnedGems = 10;
       }
       
-      xp.value += earnedXp;
-      gems.value += earnedGems;
+      final newXp = xp.value + earnedXp;
+      final newGems = gems.value + earnedGems;
+      final newLevel = 1 + (newXp ~/ 100);
+
+      _progress.syncBasicStats(
+        newXp: newXp,
+        newGems: newGems,
+        newLevel: newLevel,
+      );
 
       // Update current user's XP in leaderboard
       final userIndex = leaderboard.indexWhere((u) => u.isCurrentUser);
@@ -467,8 +483,10 @@ class HomeController extends GetxController {
       return;
     }
 
-    gems.value -= 100;
-    hearts.value = 5;
+    _progress.syncBasicStats(
+      newGems: gems.value - 100,
+      newHearts: 5,
+    );
     _showShopSuccess('Nyawa berhasil diisi penuh!');
   }
 
@@ -477,7 +495,8 @@ class HomeController extends GetxController {
       _showShopError('Gems tidak cukup!');
       return;
     }
-    gems.value -= 200;
+    
+    _progress.syncBasicStats(newGems: gems.value - 200);
     streakFreezes.value += 1;
     _showShopSuccess('Streak Freeze berhasil dibeli!');
   }
@@ -487,7 +506,8 @@ class HomeController extends GetxController {
       _showShopError('Gems tidak cukup!');
       return;
     }
-    gems.value -= 150;
+    
+    _progress.syncBasicStats(newGems: gems.value - 150);
     xpDoublers.value += 1;
     _showShopSuccess('XP Doubler berhasil dibeli!');
   }

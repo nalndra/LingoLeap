@@ -64,7 +64,7 @@ class LatihanView extends GetView<LatihanController> {
                       subtitle: 'Pilih dan susun kata',
                       icon: Icons.extension_rounded,
                       iconBgColor: const Color(0xFF2977C7),
-                      onTap: () => Get.toNamed(Routes.GAME_KOSAKATA),
+                      onTap: () => Get.toNamed(Routes.GAME_SUKUKATA),
                     ),
                     const SizedBox(height: 16),
                     _ExerciseCard(
@@ -72,7 +72,7 @@ class LatihanView extends GetView<LatihanController> {
                       subtitle: 'Pilih dan susun huruf',
                       icon: Icons.menu_book_rounded,
                       iconBgColor: const Color(0xFF4CAF50),
-                      onTap: () => Get.toNamed(Routes.GAME_SUKUKATA),
+                      onTap: () => Get.toNamed(Routes.GAME_KOSAKATA),
                     ),
                     const SizedBox(height: 16),
                     _ExerciseCard(

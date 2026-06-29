@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../routes/app_pages.dart';
+import '../../../services/child_progress_service.dart';
 class LoginController extends GetxController {
   final emailController = TextEditingController();
   final nameController = TextEditingController();
@@ -80,6 +81,11 @@ class LoginController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
+
+      // Pre-load stats before navigating so games don't start at 0 if the user clicks too fast
+      try {
+        await Get.find<ChildProgressService>().loadChildStats();
+      } catch (_) {}
 
       Get.offAllNamed(Routes.HOME);
     } on FirebaseAuthException catch (e) {

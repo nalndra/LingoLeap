@@ -4,6 +4,8 @@ import '../modules/ChatLippo/bindings/chat_lippo_binding.dart';
 import '../modules/ChatLippo/views/chat_lippo_view.dart';
 import '../modules/add_child/bindings/add_child_binding.dart';
 import '../modules/add_child/views/add_child_view.dart';
+import '../modules/edit_profile/bindings/edit_profile_binding.dart';
+import '../modules/edit_profile/views/edit_profile_view.dart';
 import '../modules/forgot_password/bindings/forgot_password_binding.dart';
 import '../modules/forgot_password/views/forgot_password_view.dart';
 import '../modules/game_fonem/bindings/game_fonem_binding.dart';
@@ -200,6 +202,12 @@ class AppPages {
       name: _Paths.GAME_RIMA,
       page: () => const GameRimaView(),
       binding: GameRimaBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_PROFILE,
+      page: () => const EditProfileView(),
+      binding: EditProfileBinding(),
+      transition: Transition.rightToLeft,
     ),
   ];
 }
