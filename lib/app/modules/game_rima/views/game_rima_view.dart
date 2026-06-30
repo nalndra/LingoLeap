@@ -145,7 +145,6 @@ class GameRimaView extends GetView<GameRimaController> {
     return Container(
       key: const ValueKey('loading'),
       width: double.infinity,
-      height: 302,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),

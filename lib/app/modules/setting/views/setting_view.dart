@@ -34,7 +34,7 @@ class SettingView extends GetView<SettingController> {
                     _buildSettingRow(
                       icon: Icons.tune_rounded,
                       title: 'Preferensi',
-                      subtitle: 'Audio, efek suara, dan getaran',
+                      subtitle: 'Efek suara dan getaran',
                       trailing: const Icon(Icons.chevron_right_rounded,
                           color: _blue, size: 26),
                       onTap: _showPreferensiSheet,
@@ -292,14 +292,6 @@ class SettingView extends GetView<SettingController> {
               ),
             ),
             const SizedBox(height: 24),
-            Obx(() => _buildPrefRow(
-                  icon: Icons.music_note_rounded,
-                  label: 'Audio',
-                  sublabel: 'Musik latar belakang',
-                  value: controller.audioEnabled.value,
-                  onChanged: controller.setAudio,
-                )),
-            const Divider(height: 24),
             Obx(() => _buildPrefRow(
                   icon: Icons.volume_up_rounded,
                   label: 'Efek Suara',

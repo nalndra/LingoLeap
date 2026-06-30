@@ -216,9 +216,10 @@ class _SnakeMapState extends State<_SnakeMap> {
   // section height = node + 2*rowPad + vertH = 62+20+28 = 110
   static const _kSectionH = _kNodeSz + _kRowPad * 2 + _kVertH;
 
-  // Total rows to render (capped so dev mode doesn't render 5000 rows)
+  // Selalu render minimal 12 rows (24 node) agar user bisa scroll ke bawah
+  // dan melihat banyak level terkunci di depan.
   int _totalRows(int unlocked) =>
-      min(16, ((unlocked + 2) ~/ 2) + 4).clamp(5, 16);
+      max(12, ((unlocked + 2) ~/ 2) + 6).clamp(12, 30);
 
   @override
   void dispose() {
@@ -373,6 +374,30 @@ class _SnakeMapState extends State<_SnakeMap> {
                     if (r < rows - 1)
                       _buildVertConn(r, unlocked, completed),
                   ],
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.lock_outline_rounded,
+                          color: Color(0xFFCCCCCC),
+                          size: 28,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Login setiap hari untuk\nmembuka lebih banyak level!',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFBBBBBB),
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -396,50 +421,69 @@ class _NodeCircle extends StatelessWidget {
   const _NodeCircle({required this.node, required this.onTap});
 
   static const _kSz       = 62.0;
-  static const _kSzLocked = 54.0;
+  static const _kSzLocked = 52.0;
 
   @override
   Widget build(BuildContext context) {
     final isLocked = node.status == _NS.locked;
     final sz       = isLocked ? _kSzLocked : _kSz;
-    final iconSz   = sz * 0.44;
+    final iconSz   = sz * 0.40;
 
-    // 3-D button: dark outer circle + colored face shifted up by 4px
-    final circle = Container(
-      width: sz,
-      height: sz,
-      decoration: BoxDecoration(
-        color: node.darkColor,
-        shape: BoxShape.circle,
-      ),
+    final circle = Opacity(
+      opacity: isLocked ? 0.72 : 1.0,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 4),
+        width: sz,
+        height: sz,
         decoration: BoxDecoration(
-          color: node.color,
+          color: node.darkColor,
           shape: BoxShape.circle,
-          boxShadow: node.isCurrent
-              ? [
-                  BoxShadow(
-                    color: node.color.withValues(alpha: 0.55),
-                    blurRadius: 18,
-                    spreadRadius: 4,
-                  ),
-                ]
-              : null,
         ),
-        child: Center(
-          child: Icon(node.icon, color: Colors.white, size: iconSz),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 4),
+          decoration: BoxDecoration(
+            color: node.color,
+            shape: BoxShape.circle,
+            boxShadow: node.isCurrent
+                ? [
+                    BoxShadow(
+                      color: node.color.withValues(alpha: 0.55),
+                      blurRadius: 18,
+                      spreadRadius: 4,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: Icon(node.icon, color: Colors.white, size: iconSz),
+          ),
         ),
       ),
     );
 
-    // Fixed bounding box: always _kSz wide so Row stays aligned
     return GestureDetector(
-      onTap: isLocked ? null : onTap,
+      onTap: isLocked
+          ? () => Get.snackbar(
+                'Terkunci 🔒',
+                'Level ini akan terbuka besok. Yuk kembali lagi!',
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: const Color(0xFF333333),
+                colorText: Colors.white,
+                margin: const EdgeInsets.all(16),
+                borderRadius: 16,
+                duration: const Duration(seconds: 2),
+              )
+          : onTap,
+      // Stack dengan clipBehavior.none agar label "Besok" bisa overflow ke bawah
       child: SizedBox(
         width: _kSz,
         height: _kSz,
-        child: Center(child: circle),
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            circle,
+          ],
+        ),
       ),
     );
   }

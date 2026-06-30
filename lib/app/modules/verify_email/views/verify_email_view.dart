@@ -10,7 +10,8 @@ class VerifyEmailView extends GetView<VerifyEmailController> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F0E8),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             children: [
@@ -61,7 +62,7 @@ class VerifyEmailView extends GetView<VerifyEmailController> {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Cek inbox atau folder Spam/Junk emailmu, lalu klik link verifikasi yang dikirim.',
+                      'Cek inbox atau folder Spam/Junk emailmu, lalu klik link verifikasi yang dikirim.\nP.S kemungkinan besar terdapat di bagian SPAM.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,

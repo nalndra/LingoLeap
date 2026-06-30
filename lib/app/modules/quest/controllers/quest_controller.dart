@@ -100,7 +100,12 @@ class QuestController extends GetxController {
             .get();
         final startKey = doc.data()?['petualanganStartDate'] as String?;
         if (startKey != null) {
-          todayLevelIdx.value = _daysSince06(startKey);
+          final fromDate      = _daysSince06(startKey);
+          final fromCompleted = _svc.petualanganCompleted.length;
+          // Pakai nilai terbesar: kalau user sudah selesaikan lebih banyak
+          // level daripada hari yang sudah berlalu (devMode atau catch-up),
+          // quest mengikuti level yang sedang aktif di petualangan.
+          todayLevelIdx.value = fromDate > fromCompleted ? fromDate : fromCompleted;
         }
       }
     } catch (_) {}

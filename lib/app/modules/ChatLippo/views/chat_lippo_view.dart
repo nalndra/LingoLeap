@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
@@ -13,12 +15,30 @@ class ChatLippoView extends GetView<ChatLippoController> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F0E3),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            _buildHeader(),
-            Expanded(child: _buildMessageList()),
-            _buildSuggestionChip(),
-            _buildInputBar(),
+            Column(
+              children: [
+                _buildHeader(),
+                Expanded(child: _buildMessageList()),
+                _buildSuggestionChip(),
+                _buildInputBar(),
+              ],
+            ),
+            // Panel mendengarkan — slide dari bawah
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Obx(() => AnimatedSlide(
+                    offset: controller.isListening.value
+                        ? Offset.zero
+                        : const Offset(0, 1),
+                    duration: const Duration(milliseconds: 380),
+                    curve: Curves.easeInOutCubic,
+                    child: _ListeningPanel(ctrl: controller),
+                  )),
+            ),
           ],
         ),
       ),
@@ -270,6 +290,7 @@ class ChatLippoView extends GetView<ChatLippoController> {
         ),
       );
 
+
   // ─── Suggestion Chip ──────────────────────────────────────────────────────────
 
   Widget _buildSuggestionChip() {
@@ -335,14 +356,26 @@ class ChatLippoView extends GetView<ChatLippoController> {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
       child: Row(
         children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: const BoxDecoration(
-              color: Color(0xFF4CAF50),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.mic_rounded, color: Colors.white, size: 24),
+          GestureDetector(
+            onTap: controller.toggleListening,
+            child: Obx(() => AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: controller.isListening.value
+                        ? const Color(0xFF2E7D32)
+                        : const Color(0xFF4CAF50),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    controller.isListening.value
+                        ? Icons.stop_rounded
+                        : Icons.mic_rounded,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                )),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -397,6 +430,184 @@ class ChatLippoView extends GetView<ChatLippoController> {
                 ),
               )),
         ],
+      ),
+    );
+  }
+}
+
+// ─── Listening Panel (StatefulWidget agar bisa pakai AnimationController) ──────
+
+class _ListeningPanel extends StatefulWidget {
+  final ChatLippoController ctrl;
+  const _ListeningPanel({required this.ctrl});
+
+  @override
+  State<_ListeningPanel> createState() => _ListeningPanelState();
+}
+
+class _ListeningPanelState extends State<_ListeningPanel>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _wave;
+
+  @override
+  void initState() {
+    super.initState();
+    _wave = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _wave.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF78D94A),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x50000000),
+            blurRadius: 24,
+            offset: Offset(0, -6),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 14),
+          // Drag handle
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1D6B06).withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Mendengarkan',
+            style: GoogleFonts.poppins(
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF1A5C06),
+            ),
+          ),
+          const SizedBox(height: 18),
+          // Waveform bars
+          SizedBox(
+            height: 52,
+            child: AnimatedBuilder(
+              animation: _wave,
+              builder: (context2, _) {
+                final level =
+                    0.25 + widget.ctrl.soundLevel.value * 0.75;
+                const count = 24;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: List.generate(count, (i) {
+                    final phase =
+                        _wave.value * 2 * pi + i * (pi / count) * 2.8;
+                    final h = (4 + sin(phase).abs() * 40 * level)
+                        .clamp(4.0, 46.0);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2.2),
+                      child: Container(
+                        width: 4,
+                        height: h,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1A5C06)
+                              .withValues(alpha: 0.72),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                    );
+                  }),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 4),
+          // Concentric arcs + mic button
+          SizedBox(
+            height: 240,
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                // Outer: 460 → 230px half, spans full screen width (clipped by sides)
+                _arc(460, const Color(0xFF5CC42C)),
+                // Middle: 320 → 160px half, ring visible = 70px
+                _arc(320, const Color(0xFF3DAE14)),
+                // Inner: 180 → 90px half, ring visible = 70px, inner solid = 90px
+                _arc(180, const Color(0xFF2A9008)),
+                // Mic button — tap to stop
+                Positioned(
+                  bottom: 22,
+                  child: AnimatedBuilder(
+                    animation: _wave,
+                    builder: (_, child) {
+                      final glow = 0.45 +
+                          sin(_wave.value * 2 * pi) * 0.25 +
+                          widget.ctrl.soundLevel.value * 0.3;
+                      return Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1A6806)
+                                  .withValues(alpha: glow.clamp(0.0, 1.0)),
+                              blurRadius: 22,
+                              spreadRadius: 6,
+                            ),
+                          ],
+                        ),
+                        child: child,
+                      );
+                    },
+                    child: GestureDetector(
+                      onTap: widget.ctrl.toggleListening,
+                      child: Container(
+                        width: 68,
+                        height: 68,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF1A6806),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.mic_rounded,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _arc(double size, Color color) {
+    return ClipRect(
+      child: Align(
+        alignment: Alignment.topCenter,
+        heightFactor: 0.5,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
       ),
     );
   }

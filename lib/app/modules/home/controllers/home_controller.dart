@@ -72,7 +72,7 @@ class LeaderboardUser {
   }) : xp = initialXp.obs;
 }
 
-class HomeController extends GetxController {
+class HomeController extends GetxController with WidgetsBindingObserver {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   StreamSubscription<User?>? _authSub;
 
@@ -161,8 +161,9 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
     pageController = PageController(initialPage: tabIndex.value);
-    
+
     // Load data real dari Firestore
     _progress.loadChildStats();
 
@@ -177,9 +178,17 @@ class HomeController extends GetxController {
 
   @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
     _authSub?.cancel();
     pageController.dispose();
     super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _progress.loadChildStats();
+    }
   }
 
   Future<void> loadTutorialStatus() async {

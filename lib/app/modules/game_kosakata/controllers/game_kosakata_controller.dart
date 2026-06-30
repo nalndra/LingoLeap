@@ -142,7 +142,7 @@ class GameKosakataController extends GetxController {
   void tapSlot(int slotIndex) {
     final bIdx = slotBubbleIndex[slotIndex];
     if (bIdx == -1) return;
-    try { Get.find<FeedbackService>().tap(); } catch (_) {}
+    try { Get.find<FeedbackService>().delete(); } catch (_) {}
     bubbleUsed[bIdx] = false;
     slotBubbleIndex[slotIndex] = -1;
     slotBubbleIndex.refresh();
@@ -169,6 +169,7 @@ class GameKosakataController extends GetxController {
     _sessionPlayedCount++;
     if (answer == word) {
       _correctCount++;
+      try { Get.find<FeedbackService>().correct(); } catch (_) {}
       _showResultSheet(isCorrect: true);
     } else {
       _wrongWords.add(word);

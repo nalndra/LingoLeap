@@ -27,9 +27,26 @@ class GameKosakataView extends GetView<GameKosakataController> {
                       const SizedBox(height: 14),
                     ],
                     _buildInstructionBox(),
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 20),
                     _buildAnswerSlots(),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.touch_app_rounded,
+                            size: 13, color: Color(0xFFBBBBBB)),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Ketuk suku kata di kotak untuk menghapusnya',
+                          style: GoogleFonts.poppins(
+                            fontSize: 11,
+                            color: const Color(0xFFBBBBBB),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                     _buildBubbles(),
                     const Spacer(),
                     _buildPeriksaButton(),
@@ -122,57 +139,65 @@ class GameKosakataView extends GetView<GameKosakataController> {
       final slots = controller.slotBubbleIndex;
       final syllables = controller.syllables;
       final count = slots.length;
-      // shrink slot size if 4 suku kata
-      final slotSize = count >= 4 ? 68.0 : 80.0;
-      final fontSize = count >= 4 ? 17.0 : 22.0;
-      final hPad = count >= 4 ? 5.0 : 8.0;
 
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(count, (i) {
-          final bIdx = slots[i];
-          final isEmpty = bIdx == -1;
-          final color = isEmpty
-              ? null
-              : GameKosakataController.bubbleColors[
-                  bIdx % GameKosakataController.bubbleColors.length];
+      return LayoutBuilder(
+        builder: (_, constraints) {
+          const gap = 8.0;
+          final slotSize =
+              ((constraints.maxWidth - gap * (count - 1)) / count)
+                  .clamp(48.0, 88.0);
+          final fontSize = (slotSize * 0.27).clamp(13.0, 24.0);
 
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: hPad),
-            child: GestureDetector(
-              onTap: () => controller.tapSlot(i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: slotSize,
-                height: slotSize,
-                decoration: BoxDecoration(
-                  color: isEmpty ? Colors.white : color,
-                  borderRadius: BorderRadius.circular(16),
-                  border: isEmpty
-                      ? Border.all(color: const Color(0xFF4CAF50), width: 2)
-                      : null,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(count, (i) {
+              final bIdx = slots[i];
+              final isEmpty = bIdx == -1;
+              final color = isEmpty
+                  ? null
+                  : GameKosakataController.bubbleColors[
+                      bIdx % GameKosakataController.bubbleColors.length];
+
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: gap / 2),
+                child: GestureDetector(
+                  onTap: () => controller.tapSlot(i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: slotSize,
+                    height: slotSize,
+                    decoration: BoxDecoration(
+                      color: isEmpty ? Colors.white : color,
+                      borderRadius: BorderRadius.circular(16),
+                      border: isEmpty
+                          ? Border.all(color: const Color(0xFF4CAF50), width: 2)
+                          : null,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    isEmpty ? '?' : syllables[bIdx],
-                    style: GoogleFonts.poppins(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.w900,
-                      color: isEmpty ? const Color(0xFF4CAF50) : Colors.white,
+                    child: Center(
+                      child: Text(
+                        isEmpty ? '?' : syllables[bIdx],
+                        style: GoogleFonts.poppins(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.w900,
+                          color: isEmpty
+                              ? const Color(0xFF4CAF50)
+                              : Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
           );
-        }),
+        },
       );
     });
   }
@@ -186,11 +211,6 @@ class GameKosakataView extends GetView<GameKosakataController> {
       final shuffled = controller.shuffledBubbleIndices;
       if (shuffled.isEmpty) return const SizedBox.shrink();
 
-      // shrink bubbles if 4 suku kata
-      final bubbleSize = shuffled.length >= 4 ? 88.0 : 110.0;
-      final fontSz = shuffled.length >= 4 ? 18.0 : 24.0;
-      final hPad = shuffled.length >= 4 ? 10.0 : 20.0;
-
       // Build rows from shuffled order: max 2 per row
       final rows = <List<int>>[];
       for (var i = 0; i < shuffled.length; i += 2) {
@@ -200,58 +220,67 @@ class GameKosakataView extends GetView<GameKosakataController> {
         ]);
       }
 
-      return Column(
-        children: rows.map((row) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: row.map((originalIdx) {
-                final color = GameKosakataController.bubbleColors[
-                    originalIdx % GameKosakataController.bubbleColors.length];
-                final isUsed = used[originalIdx];
+      return LayoutBuilder(
+        builder: (_, constraints) {
+          const gap = 16.0;
+          final bubbleSize =
+              ((constraints.maxWidth - gap * 3) / 2).clamp(72.0, 120.0);
+          final fontSz = (bubbleSize * 0.22).clamp(14.0, 26.0);
 
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: hPad),
-                  child: GestureDetector(
-                    onTap: () => controller.tapBubble(originalIdx),
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 200),
-                      opacity: isUsed ? 0.3 : 1.0,
-                      child: Container(
-                        width: bubbleSize,
-                        height: bubbleSize,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          boxShadow: isUsed
-                              ? []
-                              : [
-                                  BoxShadow(
-                                    color: color.withValues(alpha: 0.4),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            syllables[originalIdx],
-                            style: GoogleFonts.poppins(
-                              fontSize: fontSz,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.white,
+          return Column(
+            children: rows.map((row) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: row.map((originalIdx) {
+                    final color = GameKosakataController.bubbleColors[
+                        originalIdx % GameKosakataController.bubbleColors.length];
+                    final isUsed = used[originalIdx];
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: gap / 2),
+                      child: GestureDetector(
+                        onTap: () => controller.tapBubble(originalIdx),
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 200),
+                          opacity: isUsed ? 0.3 : 1.0,
+                          child: Container(
+                            width: bubbleSize,
+                            height: bubbleSize,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                              boxShadow: isUsed
+                                  ? []
+                                  : [
+                                      BoxShadow(
+                                        color: color.withValues(alpha: 0.4),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 6),
+                                      ),
+                                    ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                syllables[originalIdx],
+                                style: GoogleFonts.poppins(
+                                  fontSize: fontSz,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
+                    );
+                  }).toList(),
+                ),
+              );
+            }).toList(),
           );
-        }).toList(),
+        },
       );
     });
   }

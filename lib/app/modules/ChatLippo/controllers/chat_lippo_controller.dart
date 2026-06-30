@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../../config/api_config.dart' as api_config;
 
@@ -16,8 +18,13 @@ class ChatMessage {
 class ChatLippoController extends GetxController {
   final messages = <ChatMessage>[].obs;
   final isLoading = false.obs;
+  final isListening = false.obs;
+  final soundLevel = 0.0.obs; // 0.0–1.0 normalized
   final textController = TextEditingController();
   final scrollController = ScrollController();
+
+  final _stt = SpeechToText();
+  bool _sttReady = false;
 
   static const _apiKey = api_config.geminiApiKey;
   static const _apiUrl =
@@ -74,14 +81,83 @@ GAYA BICARA:
       text: 'Hei, petualang! Aku Lippo, teman perjalanan belajarmu. Mau tanya apa hari ini?',
       isUser: false,
     ));
+    _initStt();
+  }
+
+  Future<void> _initStt() async {
+    _sttReady = await _stt.initialize(
+      onError: (_) => _stopListening(),
+      onStatus: (status) {
+        if ((status == 'done' || status == 'notListening') &&
+            isListening.value) {
+          _stopListening();
+        }
+      },
+    );
   }
 
   @override
   void onClose() {
     textController.dispose();
     scrollController.dispose();
+    _stt.cancel();
     super.onClose();
   }
+
+  // ─── Speech-to-text ──────────────────────────────────────────────────────────
+
+  Future<void> toggleListening() async {
+    if (isListening.value) {
+      await _stopListening();
+    } else {
+      await _startListening();
+    }
+  }
+
+  Future<void> _startListening() async {
+    if (!_sttReady) {
+      _sttReady = await _stt.initialize(
+        onError: (_) => _stopListening(),
+        onStatus: (status) {
+          if ((status == 'done' || status == 'notListening') &&
+              isListening.value) {
+            _stopListening();
+          }
+        },
+      );
+    }
+    if (!_sttReady) return;
+
+    isListening.value = true;
+    soundLevel.value = 0.0;
+
+    await _stt.listen(
+      onResult: (SpeechRecognitionResult result) {
+        if (result.finalResult) {
+          final text = result.recognizedWords.trim();
+          _stopListening();
+          if (text.isNotEmpty) {
+            textController.text = text;
+            sendMessage();
+          }
+        }
+      },
+      onSoundLevelChange: (double level) {
+        // dB range ~-160 to 0; map -60..0 → 0..1
+        soundLevel.value = ((level + 60) / 60).clamp(0.0, 1.0);
+      },
+      pauseFor: const Duration(seconds: 2),
+      localeId: 'id_ID',
+    );
+  }
+
+  Future<void> _stopListening() async {
+    await _stt.stop();
+    isListening.value = false;
+    soundLevel.value = 0.0;
+  }
+
+  // ─── Chat ────────────────────────────────────────────────────────────────────
 
   Future<void> sendMessage() async {
     final text = textController.text.trim();

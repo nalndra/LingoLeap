@@ -16,8 +16,7 @@ class PetLevel {
 }
 
 class PetualanganController extends GetxController {
-  // ── Matikan untuk production, nyalakan saat developing ──────────────────────
-  static const devMode = true;
+  static const devMode = false;
 
   // Urutan: day 1 = suku kata, day 2 = kosa kata, day 3 = rima, day 4 = fonem
   static const _cycle = [

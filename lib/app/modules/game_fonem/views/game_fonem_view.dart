@@ -258,52 +258,63 @@ class GameFonemView extends GetView<GameFonemController> {
       final options = controller.shuffledOptions;
       if (options.isEmpty) return const SizedBox.shrink();
 
-      return Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children:
-                List.generate(3, (i) => _buildOptionTile(options[i], i)),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-                3, (i) => _buildOptionTile(options[i + 3], i + 3)),
-          ),
-        ],
+      return LayoutBuilder(
+        builder: (_, constraints) {
+          const cols = 3;
+          const gap = 10.0;
+          final tileSize =
+              ((constraints.maxWidth - gap * (cols + 1)) / cols)
+                  .clamp(52.0, 88.0);
+
+          return Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                    3, (i) => _buildOptionTile(options[i], i, tileSize, gap)),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(3,
+                    (i) => _buildOptionTile(options[i + 3], i + 3, tileSize, gap)),
+              ),
+            ],
+          );
+        },
       );
     });
   }
 
-  Widget _buildOptionTile(String letter, int colorIdx) {
+  Widget _buildOptionTile(String letter, int colorIdx, double size, double gap) {
     final main = GameFonemController.tileColors[
         colorIdx % GameFonemController.tileColors.length];
     final dark = GameFonemController.tileDarkColors[
         colorIdx % GameFonemController.tileDarkColors.length];
+    final radius = size * 0.22;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: EdgeInsets.symmetric(horizontal: gap / 2),
       child: GestureDetector(
         onTap: () => controller.selectOption(letter),
         child: Container(
-          width: 78,
-          height: 78,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             color: dark,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(radius),
           ),
           child: Container(
             margin: const EdgeInsets.only(bottom: 6),
             decoration: BoxDecoration(
               color: main,
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(radius),
             ),
             child: Center(
               child: Text(
                 letter,
                 style: GoogleFonts.poppins(
-                  fontSize: 28,
+                  fontSize: (size * 0.36).clamp(20.0, 32.0),
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
                 ),

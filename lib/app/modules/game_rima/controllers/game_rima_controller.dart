@@ -154,6 +154,7 @@ class GameRimaController extends GetxController {
     final isCorrect = selectedOptionIdx.value == _correctDisplayIdx.value;
     if (isCorrect) {
       _correctCount++;
+      try { Get.find<FeedbackService>().correct(); } catch (_) {}
     } else {
       _wrongWords.add(word);
       try { Get.find<FeedbackService>().wrong(); } catch (_) {}

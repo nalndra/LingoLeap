@@ -12,11 +12,9 @@ class SettingController extends GetxController {
   final photoUrl  = ''.obs;
 
   // Preferensi — persisted ke SharedPreferences
-  final audioEnabled     = true.obs;
   final soundEnabled     = true.obs;
   final vibrationEnabled = true.obs;
 
-  static const _kAudio     = 'pref_audio';
   static const _kSound     = 'pref_sound';
   static const _kVibration = 'pref_vibration';
 
@@ -49,15 +47,10 @@ class SettingController extends GetxController {
 
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    audioEnabled.value     = prefs.getBool(_kAudio)     ?? true;
     soundEnabled.value     = prefs.getBool(_kSound)     ?? true;
     vibrationEnabled.value = prefs.getBool(_kVibration) ?? true;
-  }
-
-  Future<void> setAudio(bool val) async {
-    audioEnabled.value = val;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kAudio, val);
+    // Pastikan FeedbackService langsung sinkron dengan nilai tersimpan
+    _syncFeedback();
   }
 
   Future<void> setSound(bool val) async {

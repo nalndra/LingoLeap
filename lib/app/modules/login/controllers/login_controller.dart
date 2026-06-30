@@ -4,17 +4,28 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../routes/app_pages.dart';
 import '../../../services/child_progress_service.dart';
+
 class LoginController extends GetxController {
-  final emailController = TextEditingController();
-  final nameController = TextEditingController();
+  final emailController    = TextEditingController();
   final passwordController = TextEditingController();
-  
+
   final isLoading = false.obs;
-  final obscurePassword = true.obs;
+
+  // Inline error strings — kosong = tidak ada error
+  final emailError = ''.obs;
+  final passError  = ''.obs;
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  void toggleObscure() {
-    obscurePassword.value = !obscurePassword.value;
+  @override
+  void onInit() {
+    super.onInit();
+    emailController.addListener(() {
+      if (emailError.value.isNotEmpty) emailError.value = '';
+    });
+    passwordController.addListener(() {
+      if (passError.value.isNotEmpty) passError.value = '';
+    });
   }
 
   @override
@@ -26,36 +37,48 @@ class LoginController extends GetxController {
     super.onClose();
   }
 
-  Future<void> login() async {
+  bool _validate() {
+    bool ok = true;
     final email = emailController.text.trim();
-    final password = passwordController.text.trim();
+    final pass  = passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Email dan Kunci Rahasia tidak boleh kosong!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-      return;
+    if (email.isEmpty) {
+      emailError.value = 'Email tidak boleh kosong';
+      ok = false;
+    } else if (!GetUtils.isEmail(email)) {
+      emailError.value = 'Format email tidak valid';
+      ok = false;
     }
+
+    if (pass.isEmpty) {
+      passError.value = 'Kunci rahasia tidak boleh kosong';
+      ok = false;
+    }
+
+    return ok;
+  }
+
+  Future<void> login() async {
+    if (!_validate()) return;
 
     try {
       isLoading.value = true;
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      final email = emailController.text.trim();
+      final pass  = passwordController.text;
+
+      final cred = await _auth.signInWithEmailAndPassword(
         email: email,
-        password: password,
+        password: pass,
       );
 
-      // Auto-migrate legacy accounts that don't have a Firestore document
-      final uid = userCredential.user?.uid;
-      final displayName = userCredential.user?.displayName ?? 'Pahlawan';
+      // Auto-migrate legacy accounts
+      final uid  = cred.user?.uid;
+      final name = cred.user?.displayName ?? 'Pahlawan';
       if (uid != null) {
         final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
         if (!doc.exists) {
           await FirebaseFirestore.instance.collection('users').doc(uid).set({
-            'name': displayName,
+            'name': name,
             'email': email,
             'role': 'child',
             'level': 1,
@@ -65,57 +88,36 @@ class LoginController extends GetxController {
           });
         }
       }
-      
-      final user = userCredential.user;
 
-      if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
+      if (cred.user != null && !cred.user!.emailVerified) {
+        await cred.user!.sendEmailVerification();
         Get.offAllNamed(Routes.VERIFY_EMAIL);
         return;
       }
 
-      Get.snackbar(
-        'Sukses',
-        'Selamat datang kembali, ${user?.displayName ?? "Pahlawan"}!',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
-
-      // Pre-load stats before navigating so games don't start at 0 if the user clicks too fast
-      try {
-        await Get.find<ChildProgressService>().loadChildStats();
-      } catch (_) {}
-
+      try { await Get.find<ChildProgressService>().loadChildStats(); } catch (_) {}
       Get.offAllNamed(Routes.HOME);
     } on FirebaseAuthException catch (e) {
-      String message = 'Terjadi kesalahan saat masuk.';
-      if (e.code == 'user-not-found') {
-        message = 'Email pahlawan tidak ditemukan.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Kunci rahasia salah.';
-      } else if (e.code == 'invalid-email') {
-        message = 'Format email tidak valid.';
+      switch (e.code) {
+        case 'user-not-found':
+          emailError.value = 'Email pahlawan tidak ditemukan';
+        case 'wrong-password':
+          passError.value = 'Kunci rahasia salah';
+        case 'invalid-credential':
+          passError.value = 'Email atau kunci rahasia salah';
+        case 'invalid-email':
+          emailError.value = 'Format email tidak valid';
+        case 'too-many-requests':
+          passError.value = 'Terlalu banyak percobaan. Coba lagi nanti';
+        case 'user-disabled':
+          emailError.value = 'Akun ini telah dinonaktifkan';
+        default:
+          passError.value = 'Terjadi kesalahan. Coba lagi';
       }
-      Get.snackbar(
-        'Gagal Masuk',
-        message,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+    } catch (_) {
+      passError.value = 'Koneksi bermasalah. Cek internetmu';
     } finally {
-      if (!isClosed) {
-        isLoading.value = false;
-      }
+      if (!isClosed) isLoading.value = false;
     }
   }
 }

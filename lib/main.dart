@@ -24,6 +24,8 @@ void main() async {
   runApp(
     GetMaterialApp(
       title: "LingoLeap",
+      defaultTransition: Transition.fade,
+      transitionDuration: const Duration(milliseconds: 180),
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),

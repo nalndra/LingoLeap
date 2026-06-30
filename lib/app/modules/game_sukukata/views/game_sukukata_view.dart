@@ -142,7 +142,23 @@ class GameSukukataView extends GetView<GameSukukataController> {
           ),
           const SizedBox(height: 24),
           _buildAnswerSlots(),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.touch_app_rounded, size: 13, color: Color(0xFFBBBBBB)),
+              const SizedBox(width: 4),
+              Text(
+                'Ketuk huruf di kotak untuk menghapusnya',
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  color: const Color(0xFFBBBBBB),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           _buildLetterTiles(),
         ],
       ),
@@ -156,26 +172,33 @@ class GameSukukataView extends GetView<GameSukukataController> {
       final slots = controller.slotTileIndex;
       final ltrs = controller.letters;
       final count = slots.length;
-      final tileSize = _tileSize(count);
 
-      return Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 8,
-        runSpacing: 8,
-        children: List.generate(count, (i) {
-          final tIdx = slots[i];
-          final isEmpty = tIdx == -1;
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const gap = 8.0;
+          final tileSize = ((constraints.maxWidth - gap * (count - 1)) / count)
+              .clamp(38.0, 72.0);
 
-          return GestureDetector(
-            onTap: () => controller.tapSlot(i),
-            child: _buildSlotTile(
-              isEmpty: isEmpty,
-              letter: isEmpty ? '?' : ltrs[tIdx],
-              colorIdx: isEmpty ? -1 : tIdx,
-              size: tileSize,
-            ),
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(count, (i) {
+              final tIdx = slots[i];
+              final isEmpty = tIdx == -1;
+              return Padding(
+                padding: EdgeInsets.only(right: i < count - 1 ? gap : 0),
+                child: GestureDetector(
+                  onTap: () => controller.tapSlot(i),
+                  child: _buildSlotTile(
+                    isEmpty: isEmpty,
+                    letter: isEmpty ? '?' : ltrs[tIdx],
+                    colorIdx: isEmpty ? -1 : tIdx,
+                    size: tileSize,
+                  ),
+                ),
+              );
+            }),
           );
-        }),
+        },
       );
     });
   }
@@ -258,52 +281,62 @@ class GameSukukataView extends GetView<GameSukukataController> {
       final used = controller.tileUsed;
       if (shuffled.isEmpty) return const SizedBox.shrink();
 
-      final tileSize = _tileSize(shuffled.length);
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const gap = 8.0;
+          final count = shuffled.length;
+          final tileSize = ((constraints.maxWidth - gap * (count - 1)) / count)
+              .clamp(38.0, 72.0);
 
-      return Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 8,
-        runSpacing: 8,
-        children: shuffled.map((originalIdx) {
-          final main = GameSukukataController.tileMainColors[
-              originalIdx % GameSukukataController.tileMainColors.length];
-          final dark = GameSukukataController.tileDarkColors[
-              originalIdx % GameSukukataController.tileDarkColors.length];
-          final isUsed = used[originalIdx];
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: shuffled.asMap().entries.map((entry) {
+              final i = entry.key;
+              final originalIdx = entry.value;
+              final main = GameSukukataController.tileMainColors[
+                  originalIdx % GameSukukataController.tileMainColors.length];
+              final dark = GameSukukataController.tileDarkColors[
+                  originalIdx % GameSukukataController.tileDarkColors.length];
+              final isUsed = used[originalIdx];
 
-          return GestureDetector(
-            onTap: () => controller.tapTile(originalIdx),
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 150),
-              opacity: isUsed ? 0.35 : 1.0,
-              child: Container(
-                width: tileSize,
-                height: tileSize,
-                decoration: BoxDecoration(
-                  color: dark,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 5),
-                  decoration: BoxDecoration(
-                    color: main,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Center(
-                    child: Text(
-                      ltrs[originalIdx],
-                      style: GoogleFonts.poppins(
-                        fontSize: tileSize * 0.42,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
+              return Padding(
+                padding: EdgeInsets.only(right: i < count - 1 ? gap : 0),
+                child: GestureDetector(
+                  onTap: () => controller.tapTile(originalIdx),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 150),
+                    opacity: isUsed ? 0.35 : 1.0,
+                    child: Container(
+                      width: tileSize,
+                      height: tileSize,
+                      decoration: BoxDecoration(
+                        color: dark,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 5),
+                        decoration: BoxDecoration(
+                          color: main,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Center(
+                          child: Text(
+                            ltrs[originalIdx],
+                            style: GoogleFonts.poppins(
+                              fontSize: tileSize * 0.42,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
+              );
+            }).toList(),
           );
-        }).toList(),
+        },
       );
     });
   }
@@ -348,11 +381,4 @@ class GameSukukataView extends GetView<GameSukukataController> {
     );
   }
 
-  // ─── Helpers ───────────────────────────────────────────────────────────────
-
-  double _tileSize(int count) {
-    if (count <= 4) return 72;
-    if (count == 5) return 62;
-    return 54;
-  }
 }

@@ -167,7 +167,7 @@ class GameSukukataController extends GetxController {
   void tapSlot(int slotIndex) {
     final tIdx = slotTileIndex[slotIndex];
     if (tIdx == -1) return;
-    try { Get.find<FeedbackService>().tap(); } catch (_) {}
+    try { Get.find<FeedbackService>().delete(); } catch (_) {}
     tileUsed[tIdx] = false;
     slotTileIndex[slotIndex] = -1;
     slotTileIndex.refresh();
@@ -195,6 +195,7 @@ class GameSukukataController extends GetxController {
     _sessionPlayedCount++;
     if (isCorrect) {
       _correctCount++;
+      try { Get.find<FeedbackService>().correct(); } catch (_) {}
     } else {
       _wrongWords.add(word);
       try { Get.find<FeedbackService>().wrong(); } catch (_) {}

@@ -315,7 +315,7 @@ class TutorialView extends GetView<TutorialController> {
             ),
             const SizedBox(height: 16),
 
-            // Note: 2 soal
+                    // Note: 2 soal
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
@@ -330,6 +330,40 @@ class TutorialView extends GetView<TutorialController> {
                         fontSize: 13, fontWeight: FontWeight.w600, color: color)),
               ]),
             ),
+
+            // Tip hapus — hanya untuk Suku Kata (2) dan Kosakata (3)
+            if (gameIdx == 2 || gameIdx == 3) ...[
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF8E1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFFCC02), width: 1.2),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('💡', style: TextStyle(fontSize: 16)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        gameIdx == 2
+                            ? 'Kalau salah susun, ketuk lagi huruf yang sudah ada di kotak hijau untuk menghapusnya!'
+                            : 'Kalau salah susun, ketuk lagi suku kata yang sudah ada di kotak untuk menghapusnya!',
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF7A6000),
+                          height: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             const SizedBox(height: 36),
             _btn('Ayo Coba', color, dark, controller.nextStep),
           ]),
