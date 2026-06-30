@@ -118,6 +118,7 @@ class GameSukukataView extends GetView<GameSukukataController> {
   Widget _buildMainCard() {
     return Container(
       width: double.infinity,
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
@@ -172,6 +173,11 @@ class GameSukukataView extends GetView<GameSukukataController> {
       final slots = controller.slotTileIndex;
       final ltrs = controller.letters;
       final count = slots.length;
+
+      // Guard: jika data belum konsisten (transisi soal), tahan render satu frame
+      if (count == 0 || count != ltrs.length) {
+        return SizedBox(height: 64, width: double.infinity);
+      }
 
       return LayoutBuilder(
         builder: (context, constraints) {
@@ -279,7 +285,13 @@ class GameSukukataView extends GetView<GameSukukataController> {
       final shuffled = controller.shuffledTileIndices;
       final ltrs = controller.letters;
       final used = controller.tileUsed;
-      if (shuffled.isEmpty) return const SizedBox.shrink();
+
+      // Guard: pastikan semua data konsisten sebelum render
+      if (shuffled.isEmpty ||
+          shuffled.length != ltrs.length ||
+          used.length != ltrs.length) {
+        return SizedBox(height: 64, width: double.infinity);
+      }
 
       return LayoutBuilder(
         builder: (context, constraints) {

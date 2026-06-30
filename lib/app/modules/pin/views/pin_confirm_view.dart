@@ -13,74 +13,67 @@ class PinConfirmView extends GetView<PinController> {
     return Scaffold(
       backgroundColor: const Color(0xFF4CAF50),
       body: SafeArea(
-        child: SizedBox.expand(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start, // Diubah jadi start agar mulai dari atas
-                children: [
-                  // UBAH ANGKA INI UNTUK MENGGESER HEADER (JUDUL & BACK) KE ATAS ATAU KE BAWAH
-                  const SizedBox(height: 15), 
-
-                  // Custom Header
-                  Row(
-                    children: [
-                      Container(
-                        width: 46,
-                        height: 46,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF005DA7),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: Image.asset('assets/icons/back.png', width: 22, height: 22, color: Colors.white),
-                          onPressed: () {
-                            controller.currentInput.value = '';
-                            Get.back();
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: Center(
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              'Konfirmasi PIN',
-                              style: GoogleFonts.poppins(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                                height: 31.2 / 24,
-                                letterSpacing: -0.6,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 46),
-                    ],
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF005DA7),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: 24),
-                  
-                  Text(
-                    'Masukkan ulang PIN yang baru saja\nAnda buat.',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Image.asset(
+                      'assets/icons/back.png',
+                      width: 22,
+                      height: 22,
                       color: Colors.white,
-                      height: 1.5,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
+                    onPressed: () {
+                      controller.currentInput.value = '';
+                      Get.back();
+                    },
                   ),
-                  const SizedBox(height: 56),
-                  const PinPad(),
-                  const SizedBox(height: 40), // Bottom spacing
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 20),
+              Text(
+                'Konfirmasi PIN',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Masukkan ulang PIN yang baru saja\nAnda buat.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 48),
+              const PinPad(),
+              const SizedBox(height: 40),
+            ],
           ),
         ),
       ),

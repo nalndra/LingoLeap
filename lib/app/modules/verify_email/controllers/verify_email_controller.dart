@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../routes/app_pages.dart';
+import '../../../services/pin_service.dart';
 
 class VerifyEmailController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -29,9 +31,32 @@ class VerifyEmailController extends GetxController {
       if (verified) {
         _timer?.cancel();
         isEmailVerified.value = true;
-        Get.offAllNamed(Routes.HOME);
+        await _navigateByRole();
       }
     });
+  }
+
+  Future<void> _navigateByRole() async {
+    final uid = _auth.currentUser?.uid;
+    if (uid != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .get()
+            .timeout(const Duration(seconds: 8));
+        if (doc.data()?['role'] == 'parent') {
+          final pinService = Get.find<PinService>();
+          if (pinService.hasPin.value) {
+            Get.offAllNamed(Routes.PIN_LOGIN);
+          } else {
+            Get.offAllNamed(Routes.PARENT_DASHBOARD);
+          }
+          return;
+        }
+      } catch (_) {}
+    }
+    Get.offAllNamed(Routes.HOME);
   }
 
   Future<void> resendEmail() async {

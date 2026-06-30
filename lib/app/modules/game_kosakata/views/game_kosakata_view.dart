@@ -17,7 +17,8 @@ class GameKosakataView extends GetView<GameKosakataController> {
           children: [
             _buildTopBar(),
             Expanded(
-              child: Padding(
+              child: ClipRect(
+               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
@@ -54,6 +55,7 @@ class GameKosakataView extends GetView<GameKosakataController> {
                   ],
                 ),
               ),
+             ),
             ),
           ],
         ),
@@ -140,6 +142,11 @@ class GameKosakataView extends GetView<GameKosakataController> {
       final syllables = controller.syllables;
       final count = slots.length;
 
+      // Guard: tahan render jika data belum konsisten antar soal
+      if (count == 0 || count != syllables.length) {
+        return SizedBox(height: 72, width: double.infinity);
+      }
+
       return LayoutBuilder(
         builder: (_, constraints) {
           const gap = 8.0;
@@ -209,7 +216,13 @@ class GameKosakataView extends GetView<GameKosakataController> {
       final syllables = controller.syllables;
       final used = controller.bubbleUsed;
       final shuffled = controller.shuffledBubbleIndices;
-      if (shuffled.isEmpty) return const SizedBox.shrink();
+
+      // Guard: pastikan semua data konsisten sebelum render
+      if (shuffled.isEmpty ||
+          shuffled.length != syllables.length ||
+          used.length != syllables.length) {
+        return SizedBox(height: 120, width: double.infinity);
+      }
 
       // Build rows from shuffled order: max 2 per row
       final rows = <List<int>>[];

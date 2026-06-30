@@ -16,37 +16,44 @@ class PinPad extends GetView<PinController> {
         // Dots / Inputs
         Obx(() {
           final input = controller.currentInput.value;
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(4, (index) {
-              final isFilled = index < input.length;
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0xFF388E3C), // Darker green for shadow
-                      offset: Offset(0, 4),
-                      blurRadius: 0,
+          return LayoutBuilder(
+            builder: (_, constraints) {
+              const gap = 12.0;
+              final boxSize =
+                  ((constraints.maxWidth - gap * 3) / 4).clamp(48.0, 64.0);
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(4, (index) {
+                  final isFilled = index < input.length;
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: gap / 2),
+                    width: boxSize,
+                    height: boxSize,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0xFF388E3C),
+                          offset: Offset(0, 4),
+                          blurRadius: 0,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    isFilled ? input[index] : '-',
-                    style: GoogleFonts.poppins(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF4CAF50),
+                    child: Center(
+                      child: Text(
+                        isFilled ? input[index] : '-',
+                        style: GoogleFonts.poppins(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF4CAF50),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                }),
               );
-            }),
+            },
           );
         }),
         const SizedBox(height: 50),

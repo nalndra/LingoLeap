@@ -26,29 +26,35 @@ class WelcomeController extends GetxController {
       return;
     }
 
+    // Cek role Firestore DULU — parent tidak perlu verifikasi email
+    String? role;
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get()
+          .timeout(const Duration(seconds: 8));
+      role = doc.data()?['role'] as String?;
+    } catch (_) {
+      // Firestore gagal — fallback ke email verification check di bawah
+    }
+
+    if (role == 'parent') {
+      final pinService = Get.find<PinService>();
+      if (pinService.hasPin.value) {
+        Get.offAllNamed(Routes.PIN_LOGIN);
+      } else {
+        Get.offAllNamed(Routes.PARENT_DASHBOARD);
+      }
+      return;
+    }
+
+    // Alur anak: wajib verifikasi email
     if (!user.emailVerified) {
       Get.offAllNamed(Routes.VERIFY_EMAIL);
       return;
     }
 
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      if (doc.exists && doc.data()?['role'] == 'parent') {
-        final pinService = Get.find<PinService>();
-        if (pinService.hasPin.value) {
-          Get.offAllNamed(Routes.PIN_LOGIN);
-        } else {
-          Get.offAllNamed(Routes.PARENT_DASHBOARD);
-        }
-      } else {
-        Get.offAllNamed(Routes.HOME);
-      }
-    } catch (_) {
-      Get.offAllNamed(Routes.HOME);
-    }
+    Get.offAllNamed(Routes.HOME);
   }
 }
